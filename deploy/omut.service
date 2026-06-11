@@ -1,0 +1,20 @@
+[Unit]
+Description=Omut Detailing (Next.js)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/omut
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+User=root
+StandardOutput=append:/var/log/omut.log
+StandardError=append:/var/log/omut.log
+
+[Install]
+WantedBy=multi-user.target
