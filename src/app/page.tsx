@@ -1,65 +1,368 @@
-import Image from "next/image";
+import {
+  Sparkles,
+  ShieldCheck,
+  Clock,
+  CarFront,
+  Droplets,
+  Gauge,
+  CheckCircle2,
+  Star,
+  MapPin,
+  Phone,
+  MessageCircle,
+  CalendarCheck,
+} from "lucide-react";
+import { SiteHeader } from "@/components/site/header";
+import { SiteFooter } from "@/components/site/footer";
+import { Reveal } from "@/components/ui/reveal";
+import { ButtonLink } from "@/components/ui/button";
+import { BUSINESS, SERVICE_CATEGORIES } from "@/lib/constants";
+import { getServices, getApprovedReviews, getContent, getGallery } from "@/lib/data";
+import { formatRub } from "@/lib/utils";
 
-export default function Home() {
+export default async function HomePage() {
+  const [services, reviews, content, gallery] = await Promise.all([
+    getServices(),
+    getApprovedReviews(),
+    getContent(),
+    getGallery(),
+  ]);
+
+  const heroTitle = content["hero.title"] ?? BUSINESS.tagline;
+  const heroSubtitle =
+    content["hero.subtitle"] ??
+    "Детейлинг-студия «Омут» в центре Самары. Полировка, химчистка, керамика и защита кузова — с прозрачными ценами и личным кабинетом.";
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <>
+      <SiteHeader />
+      <main className="flex-1">
+        {/* HERO */}
+        <section className="bg-abyss-glow relative overflow-hidden pt-28 pb-20">
+          <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-aqua/10 blur-3xl" />
+          <div className="mx-auto max-w-7xl px-5">
+            <div className="mx-auto max-w-3xl text-center">
+              <Reveal>
+                <span className="inline-flex items-center gap-2 rounded-full border border-aqua/30 bg-aqua/5 px-4 py-1.5 text-xs text-aqua">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Детейлинг в центре Самары · {BUSINESS.address}
+                </span>
+              </Reveal>
+              <Reveal delay={80}>
+                <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
+                  <span className="text-gradient">{heroTitle}</span>
+                </h1>
+              </Reveal>
+              <Reveal delay={160}>
+                <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-mist">
+                  {heroSubtitle}
+                </p>
+              </Reveal>
+              <Reveal delay={240}>
+                <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+                  <ButtonLink href="/book" size="lg">
+                    <CalendarCheck className="h-5 w-5" />
+                    Записаться онлайн
+                  </ButtonLink>
+                  <ButtonLink href="/#services" size="lg" variant="outline">
+                    Услуги и цены
+                  </ButtonLink>
+                </div>
+              </Reveal>
+            </div>
+
+            <Reveal delay={320}>
+              <div className="mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
+                {[
+                  { icon: ShieldCheck, value: "12 мес", label: "гарантия на керамику" },
+                  { icon: Droplets, value: "pH-нейтр.", label: "безопасная химия" },
+                  { icon: CarFront, value: "Любой класс", label: "от седана до SUV" },
+                  { icon: Clock, value: "1 день", label: "большинство работ" },
+                ].map((s) => (
+                  <div key={s.label} className="glass rounded-2xl p-5 text-center">
+                    <s.icon className="mx-auto h-6 w-6 text-aqua" />
+                    <div className="mt-2 text-lg font-semibold text-foam">{s.value}</div>
+                    <div className="text-xs text-mute">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* SERVICES */}
+        <section id="services" className="py-20">
+          <div className="mx-auto max-w-7xl px-5">
+            <SectionHeading
+              eyebrow="Услуги"
+              title="Полный уход за автомобилем"
+              subtitle="Прозрачные цены «от» для класса B. Точную стоимость рассчитаем по фото или на осмотре."
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {services.map((s, i) => (
+                <Reveal key={s.id} delay={(i % 3) * 80}>
+                  <div className="group relative h-full rounded-2xl border border-line bg-surface/60 p-6 transition-all hover:border-aqua/40 hover:bg-surface">
+                    {s.popular && (
+                      <span className="absolute right-5 top-5 rounded-full bg-aqua/15 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-aqua">
+                        Хит
+                      </span>
+                    )}
+                    <div className="text-xs uppercase tracking-wide text-mute">
+                      {SERVICE_CATEGORIES[s.category] ?? s.category}
+                    </div>
+                    <h3 className="mt-2 text-xl font-semibold text-foam">{s.title}</h3>
+                    <p className="mt-2 min-h-[3rem] text-sm text-mist">{s.shortDesc}</p>
+                    <div className="mt-5 flex items-end justify-between border-t border-line pt-4">
+                      <div>
+                        <div className="text-xs text-mute">от</div>
+                        <div className="text-2xl font-semibold text-foam">
+                          {formatRub(s.basePrice)}
+                        </div>
+                      </div>
+                      <ButtonLink
+                        href={`/book?service=${s.slug}`}
+                        size="sm"
+                        variant="subtle"
+                      >
+                        Записаться
+                      </ButtonLink>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* WHY */}
+        <section id="why" className="border-y border-line bg-abyss-2 py-20">
+          <div className="mx-auto max-w-7xl px-5">
+            <SectionHeading
+              eyebrow="Почему «Омут»"
+              title={content["about.title"] ?? "Забота, которой доверяют"}
+              subtitle={
+                content["about.text"] ??
+                "Мы относимся к каждому автомобилю как к своему: безопасные технологии, премиальные материалы и контроль качества."
+              }
+            />
+            <div className="mt-12 grid gap-5 md:grid-cols-3">
+              {[
+                {
+                  icon: ShieldCheck,
+                  title: "Прозрачные цены",
+                  text: "Стоимость согласуем до начала работ. Никаких сюрпризов на выдаче.",
+                },
+                {
+                  icon: Gauge,
+                  title: "Личный кабинет",
+                  text: "Вся история обращений, выполненные услуги и суммы — онлайн, в любой момент.",
+                },
+                {
+                  icon: Sparkles,
+                  title: "Фото- и видеоотчёт",
+                  text: "Показываем результат до и после. Гарантия на покрытия.",
+                },
+              ].map((f, i) => (
+                <Reveal key={f.title} delay={i * 80}>
+                  <div className="h-full rounded-2xl border border-line bg-surface/60 p-7">
+                    <div className="grid h-12 w-12 place-items-center rounded-xl bg-aqua/10">
+                      <f.icon className="h-6 w-6 text-aqua" />
+                    </div>
+                    <h3 className="mt-5 text-lg font-semibold text-foam">{f.title}</h3>
+                    <p className="mt-2 text-sm text-mist">{f.text}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* PROCESS */}
+        <section id="process" className="py-20">
+          <div className="mx-auto max-w-7xl px-5">
+            <SectionHeading
+              eyebrow="Как мы работаем"
+              title="Четыре простых шага"
+            />
+            <div className="mt-12 grid gap-5 md:grid-cols-4">
+              {[
+                { n: "01", t: "Заявка", d: "Записываетесь онлайн или присылаете фото в мессенджер." },
+                { n: "02", t: "Осмотр и расчёт", d: "Согласуем услуги, срок и точную стоимость." },
+                { n: "03", t: "Работа", d: "Выполняем по технологии, с контролем качества." },
+                { n: "04", t: "Выдача", d: "Показываем результат, фиксируем в вашем кабинете." },
+              ].map((s, i) => (
+                <Reveal key={s.n} delay={i * 70}>
+                  <div className="relative h-full rounded-2xl border border-line bg-surface/40 p-6">
+                    <div className="text-3xl font-bold text-aqua/30">{s.n}</div>
+                    <h3 className="mt-3 text-lg font-semibold text-foam">{s.t}</h3>
+                    <p className="mt-2 text-sm text-mist">{s.d}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* GALLERY */}
+        <section id="gallery" className="border-y border-line bg-abyss-2 py-20">
+          <div className="mx-auto max-w-7xl px-5">
+            <SectionHeading eyebrow="Работы" title="Результат, который видно" />
+            <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {(gallery.length > 0
+                ? gallery.map((g) => ({ id: g.id, url: g.url, caption: g.caption }))
+                : Array.from({ length: 8 }).map((_, i) => ({
+                    id: `ph-${i}`,
+                    url: "",
+                    caption: null,
+                  }))
+              ).map((g) => (
+                <div
+                  key={g.id}
+                  className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-surface to-abyss"
+                >
+                  {g.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={g.url}
+                      alt={g.caption ?? "Работа Омут"}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-mute">
+                      <Droplets className="h-8 w-8 opacity-40" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* REVIEWS */}
+        {reviews.length > 0 && (
+          <section id="reviews" className="py-20">
+            <div className="mx-auto max-w-7xl px-5">
+              <SectionHeading eyebrow="Отзывы" title="Нам доверяют автомобили" />
+              <div className="mt-12 grid gap-5 md:grid-cols-3">
+                {reviews.map((r, i) => (
+                  <Reveal key={r.id} delay={(i % 3) * 80}>
+                    <div className="h-full rounded-2xl border border-line bg-surface/60 p-6">
+                      <div className="flex gap-0.5 text-aqua">
+                        {Array.from({ length: r.rating }).map((_, k) => (
+                          <Star key={k} className="h-4 w-4 fill-aqua" />
+                        ))}
+                      </div>
+                      <p className="mt-4 text-sm text-mist">{r.text}</p>
+                      <p className="mt-4 text-sm font-medium text-foam">{r.authorName}</p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* CONTACTS */}
+        <section id="contacts" className="border-t border-line bg-abyss-2 py-20">
+          <div className="mx-auto grid max-w-7xl gap-10 px-5 lg:grid-cols-2">
+            <div>
+              <SectionHeading
+                align="left"
+                eyebrow="Контакты"
+                title="Найти нас просто"
+              />
+              <div className="mt-8 space-y-4 text-mist">
+                <p className="flex items-center gap-3">
+                  <MapPin className="h-5 w-5 text-aqua" />
+                  {content["contacts.address"] ?? BUSINESS.addressFull}
+                </p>
+                <p className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-aqua" />
+                  {content["contacts.hours"] ?? BUSINESS.hours}
+                </p>
+                <p className="text-sm text-mute">{BUSINESS.landmark}</p>
+              </div>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink href={BUSINESS.phoneHref} variant="outline">
+                  <Phone className="h-4 w-4" /> Позвонить
+                </ButtonLink>
+                <ButtonLink href={BUSINESS.whatsapp} variant="outline">
+                  <MessageCircle className="h-4 w-4" /> WhatsApp
+                </ButtonLink>
+                <ButtonLink href="/book">
+                  <CalendarCheck className="h-4 w-4" /> Записаться
+                </ButtonLink>
+              </div>
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-line">
+              <iframe
+                title="Карта"
+                className="h-80 w-full grayscale"
+                loading="lazy"
+                src={`https://yandex.ru/map-widget/v1/?text=${encodeURIComponent(
+                  BUSINESS.addressFull,
+                )}&z=16`}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-20">
+          <div className="mx-auto max-w-7xl px-5">
+            <div className="relative overflow-hidden rounded-3xl border border-aqua/20 bg-gradient-to-br from-surface to-abyss-2 p-10 text-center sm:p-16">
+              <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-aqua/10 blur-3xl" />
+              <h2 className="text-3xl font-semibold sm:text-4xl">
+                Готовы вернуть авто глубину и блеск?
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-mist">
+                Запишитесь онлайн — подтвердим время и рассчитаем стоимость. История
+                всех работ будет в вашем личном кабинете.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <ButtonLink href="/book" size="lg">
+                  <CalendarCheck className="h-5 w-5" /> Записаться онлайн
+                </ButtonLink>
+                <ButtonLink href="/login" size="lg" variant="outline">
+                  Личный кабинет
+                </ButtonLink>
+              </div>
+              <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-mute">
+                {["Прозрачные цены", "Гарантия на покрытия", "Фотоотчёт"].map((t) => (
+                  <span key={t} className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-aqua" /> {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
+      <SiteFooter />
+    </>
+  );
+}
+
+function SectionHeading({
+  eyebrow,
+  title,
+  subtitle,
+  align = "center",
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  align?: "center" | "left";
+}) {
+  return (
+    <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
+      <span className="text-xs font-medium uppercase tracking-[0.25em] text-aqua">
+        {eyebrow}
+      </span>
+      <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+        {title}
+      </h2>
+      {subtitle && <p className="mt-4 text-mist">{subtitle}</p>}
     </div>
   );
 }

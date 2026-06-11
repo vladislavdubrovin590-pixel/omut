@@ -1,0 +1,231 @@
+// Omut Detailing — PostgreSQL schema
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  WORKER
+  ADMIN
+}
+
+enum BodyClass {
+  A // small / city
+  B // sedan / hatchback
+  C // crossover / wagon
+  D // SUV / business
+  E // large SUV / van
+}
+
+enum BookingStatus {
+  PENDING // requested by client, awaiting confirmation
+  CONFIRMED // approved by admin
+  IN_PROGRESS // car arrived, work started
+  COMPLETED // finished, visit recorded
+  CANCELLED
+  NO_SHOW
+}
+
+enum VisitStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum PushAudience {
+  ALL
+  CLIENT
+  SEGMENT
+}
+
+model User {
+  id          String      @id @default(cuid())
+  firebaseUid String?     @unique
+  role        Role        @default(CLIENT)
+  name        String?
+  email       String?     @unique
+  phone       String?
+  avatarUrl   String?
+  note        String? // internal admin note
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  cars        Car[]
+  bookings    Booking[]
+  visits      Visit[]     @relation("ClientVisits")
+  workedVisits Visit[]    @relation("WorkerVisits")
+  pushTokens  PushToken[]
+  reviews     Review[]
+
+  @@index([role])
+  @@index([phone])
+}
+
+model Car {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  make      String
+  model     String
+  plate     String?
+  color     String?
+  year      Int?
+  bodyClass BodyClass @default(B)
+  createdAt DateTime  @default(now())
+  bookings  Booking[]
+  visits    Visit[]
+
+  @@index([userId])
+}
+
+model Service {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  title       String
+  shortDesc   String?
+  description  String?
+  category    String           @default("other")
+  basePrice   Int              @default(0) // RUB, "from" price for class B
+  durationMin Int              @default(60)
+  imageUrl    String?
+  active      Boolean          @default(true)
+  popular     Boolean          @default(false)
+  sortOrder   Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  bookings    BookingService[]
+  visitItems  VisitItem[]
+
+  @@index([category])
+  @@index([active])
+}
+
+model Booking {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  carId       String?
+  car         Car?             @relation(fields: [carId], references: [id])
+  scheduledAt DateTime
+  status      BookingStatus    @default(PENDING)
+  note        String?
+  source      String           @default("web")
+  estimatedTotal Int           @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  services    BookingService[]
+  visit       Visit?
+
+  @@index([userId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model BookingService {
+  id        String  @id @default(cuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+  price     Int     @default(0)
+
+  @@unique([bookingId, serviceId])
+}
+
+model Visit {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation("ClientVisits", fields: [userId], references: [id], onDelete: Cascade)
+  workerId    String?
+  worker      User?       @relation("WorkerVisits", fields: [workerId], references: [id])
+  bookingId   String?     @unique
+  booking     Booking?    @relation(fields: [bookingId], references: [id])
+  carId       String?
+  car         Car?        @relation(fields: [carId], references: [id])
+  status      VisitStatus @default(IN_PROGRESS)
+  arrivedAt   DateTime    @default(now())
+  completedAt DateTime?
+  totalAmount Int         @default(0)
+  note        String?
+  createdAt   DateTime    @default(now())
+  items       VisitItem[]
+
+  @@index([userId])
+  @@index([workerId])
+  @@index([arrivedAt])
+}
+
+model VisitItem {
+  id        String   @id @default(cuid())
+  visitId   String
+  visit     Visit    @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id])
+  title     String
+  price     Int      @default(0)
+  qty       Int      @default(1)
+
+  @@index([visitId])
+}
+
+model ContentBlock {
+  key       String   @id // e.g. "hero.title", "about.text", "contacts.address"
+  type      String   @default("text") // text | html | json | image
+  value     String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  category  String   @default("work") // work | before_after | interior
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  platform  String   @default("web")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PushNotification {
+  id             String       @id @default(cuid())
+  title          String
+  body           String
+  url            String?
+  audience       PushAudience @default(ALL)
+  sentById       String?
+  deliveredCount Int          @default(0)
+  failedCount    Int          @default(0)
+  createdAt      DateTime     @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  authorName String
+  rating    Int      @default(5)
+  text      String
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  key       String   @id
+  value     String   @default("")
+  updatedAt DateTime @updatedAt
+}

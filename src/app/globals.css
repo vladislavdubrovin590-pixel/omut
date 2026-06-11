@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
+@theme {
+  --color-abyss: #05080e;
+  --color-abyss-2: #080d16;
+  --color-deep: #0b1320;
+  --color-surface: #0f1826;
+  --color-surface-2: #15202f;
+  --color-line: #1e2b3d;
+  --color-foam: #e8f1f6;
+  --color-mist: #9fb3c4;
+  --color-mute: #64788c;
+
+  --color-aqua: #22d3ee;
+  --color-aqua-deep: #0891b2;
+  --color-teal: #2dd4bf;
+  --color-azure: #38bdf8;
+
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+
+  --radius-xl2: 1.5rem;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #05080e;
+  --foreground: #e8f1f6;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  border-color: var(--color-line);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
+
+/* Ambient deep-water glow used across hero / sections */
+.bg-abyss-glow {
+  background:
+    radial-gradient(60% 50% at 50% -10%, rgba(34, 211, 238, 0.16), transparent 70%),
+    radial-gradient(40% 40% at 85% 20%, rgba(45, 212, 191, 0.1), transparent 70%),
+    radial-gradient(50% 50% at 10% 80%, rgba(56, 189, 248, 0.08), transparent 70%),
+    var(--color-abyss);
+}
+
+.glass {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.015)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #e8f1f6 0%, #22d3ee 55%, #2dd4bf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.aqua-ring:focus-visible {
+  outline: 2px solid var(--color-aqua);
+  outline-offset: 2px;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.animate-float-slow { animation: float-slow 7s ease-in-out infinite; }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-abyss); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-aqua-deep); }
