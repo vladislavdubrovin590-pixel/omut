@@ -17,10 +17,39 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-export const firebaseApp: FirebaseApp =
-  getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey && firebaseConfig.appId && firebaseConfig.projectId,
+);
 
-export const auth: Auth = getAuth(firebaseApp);
+let _app: FirebaseApp | null = null;
+let _auth: Auth | null = null;
+let _googleProvider: GoogleAuthProvider | null = null;
 
-export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: "select_account" });
+if (isFirebaseConfigured) {
+  _app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  _auth = getAuth(_app);
+  _googleProvider = new GoogleAuthProvider();
+  _googleProvider.setCustomParameters({ prompt: "select_account" });
+}
+
+export const firebaseApp = _app;
+export const auth = _auth;
+export const googleProvider = _googleProvider;
+
+export function requireAuth(): Auth {
+  if (!_auth) {
+    throw new Error(
+      "Firebase не настроен. Заполните NEXT_PUBLIC_FIREBASE_* в .env и пересоберите.",
+    );
+  }
+  return _auth;
+}
+
+export function requireGoogleProvider(): GoogleAuthProvider {
+  if (!_googleProvider) {
+    throw new Error(
+      "Firebase не настроен. Заполните NEXT_PUBLIC_FIREBASE_* в .env и пересоберите.",
+    );
+  }
+  return _googleProvider;
+}

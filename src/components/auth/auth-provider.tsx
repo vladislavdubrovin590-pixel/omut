@@ -18,7 +18,11 @@ import {
   updateProfile,
   type User as FirebaseUser,
 } from "firebase/auth";
-import { auth, googleProvider } from "@/lib/firebase/client";
+import {
+  isFirebaseConfigured,
+  requireAuth,
+  requireGoogleProvider,
+} from "@/lib/firebase/client";
 
 export type Profile = {
   id: string;
@@ -74,7 +78,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (fbUser) => {
+    if (!isFirebaseConfigured) {
+      setLoading(false);
+      return;
+    }
+    const unsub = onAuthStateChanged(requireAuth(), async (fbUser) => {
       setFirebaseUser(fbUser);
       if (fbUser) {
         const idToken = await fbUser.getIdToken();
@@ -90,7 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Keep the server session cookie fresh when the ID token rotates.
   useEffect(() => {
-    const unsub = onIdTokenChanged(auth, async (fbUser) => {
+    if (!isFirebaseConfigured) return;
+    const unsub = onIdTokenChanged(requireAuth(), async (fbUser) => {
       if (fbUser) {
         const idToken = await fbUser.getIdToken();
         await postSession(idToken);
@@ -100,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInGoogle = useCallback(async () => {
-    const cred = await signInWithPopup(auth, googleProvider);
+    const cred = await signInWithPopup(requireAuth(), requireGoogleProvider());
     const idToken = await cred.user.getIdToken();
     await postSession(idToken);
     await refreshProfile();
@@ -108,7 +117,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInEmail = useCallback(
     async (email: string, password: string) => {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(
+        requireAuth(),
+        email,
+        password,
+      );
       const idToken = await cred.user.getIdToken();
       await postSession(idToken);
       await refreshProfile();
@@ -118,7 +131,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const registerEmail = useCallback(
     async (email: string, password: string, name: string) => {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const cred = await createUserWithEmailAndPassword(
+        requireAuth(),
+        email,
+        password,
+      );
       if (name) await updateProfile(cred.user, { displayName: name });
       const idToken = await cred.user.getIdToken(true);
       await postSession(idToken);
@@ -128,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    await signOut(auth);
+    if (isFirebaseConfigured) await signOut(requireAuth());
     await fetch("/api/auth/session", { method: "DELETE" });
     setProfile(null);
   }, []);
