@@ -2,10 +2,27 @@ import "server-only";
 import { cookies } from "next/headers";
 import { adminAuth } from "@/lib/firebase/admin";
 import { prisma } from "@/lib/prisma";
+import {
+  isPhoneSessionToken,
+  signPhoneSession,
+  verifyPhoneSession,
+} from "@/lib/phone-session";
 import type { Role, User } from "@prisma/client";
 
 export const SESSION_COOKIE = "omut_session";
 const FIVE_DAYS_MS = 60 * 60 * 24 * 5 * 1000;
+
+function setSessionCookie(value: string) {
+  return cookies().then((store) => {
+    store.set(SESSION_COOKIE, value, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: FIVE_DAYS_MS / 1000,
+      path: "/",
+    });
+  });
+}
 
 /** Verify an incoming Firebase ID token, sync the DB user and set a session cookie. */
 export async function createSession(idToken: string): Promise<User> {
@@ -37,7 +54,6 @@ export async function createSession(idToken: string): Promise<User> {
       email: decoded.email ?? existing?.email ?? null,
       name: decoded.name ?? existing?.name ?? null,
       avatarUrl: decoded.picture ?? existing?.avatarUrl ?? null,
-      // Promote to admin if listed, never auto-demote.
       ...(isBootstrapAdmin && existing?.role !== "ADMIN"
         ? { role: "ADMIN" as Role }
         : {}),
@@ -48,15 +64,21 @@ export async function createSession(idToken: string): Promise<User> {
     expiresIn: FIVE_DAYS_MS,
   });
 
-  const store = await cookies();
-  store.set(SESSION_COOKIE, sessionCookie, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: FIVE_DAYS_MS / 1000,
-    path: "/",
-  });
+  await setSessionCookie(sessionCookie);
+  return user;
+}
 
+/** Create session after phone OTP verification (no Firebase required). */
+export async function createPhoneSession(user: User): Promise<User> {
+  const token = signPhoneSession(user.id);
+  await setSessionCookie(token);
+  return user;
+}
+
+/** Create a first-party signed session for non-Firebase OAuth providers. */
+export async function createAppSession(user: User): Promise<User> {
+  const token = signPhoneSession(user.id);
+  await setSessionCookie(token);
   return user;
 }
 
@@ -71,6 +93,14 @@ export async function getSessionUser(): Promise<User | null> {
   const cookie = store.get(SESSION_COOKIE)?.value;
   if (!cookie) return null;
 
+  // Phone OTP session (prefix p.)
+  if (isPhoneSessionToken(cookie)) {
+    const userId = verifyPhoneSession(cookie);
+    if (!userId) return null;
+    return prisma.user.findUnique({ where: { id: userId } });
+  }
+
+  // Firebase session
   try {
     const decoded = await adminAuth.verifySessionCookie(cookie, true);
     const user = await prisma.user.findUnique({
@@ -92,4 +122,15 @@ export async function requireRole(roles: Role[]): Promise<User> {
   const user = await requireUser();
   if (!roles.includes(user.role)) throw new Error("FORBIDDEN");
   return user;
+}
+
+function bootstrapAdminPhones(): string[] {
+  return (process.env.BOOTSTRAP_ADMIN_PHONES ?? "")
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
+export function isBootstrapAdminPhone(phone: string): boolean {
+  return bootstrapAdminPhones().includes(phone);
 }

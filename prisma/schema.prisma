@@ -50,7 +50,7 @@ model User {
   role        Role        @default(CLIENT)
   name        String?
   email       String?     @unique
-  phone       String?
+  phone       String?     @unique
   avatarUrl   String?
   note        String? // internal admin note
   createdAt   DateTime    @default(now())
@@ -61,9 +61,36 @@ model User {
   workedVisits Visit[]    @relation("WorkerVisits")
   pushTokens  PushToken[]
   reviews     Review[]
+  oauthAccounts OAuthAccount[]
 
   @@index([role])
   @@index([phone])
+}
+
+model OAuthAccount {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider          String
+  providerAccountId String
+  email             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model PhoneVerification {
+  id        String   @id @default(cuid())
+  phone     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+  @@index([expiresAt])
 }
 
 model Car {

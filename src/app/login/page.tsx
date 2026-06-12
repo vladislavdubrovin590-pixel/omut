@@ -3,10 +3,10 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, User2, Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Bell, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
-import { BUSINESS } from "@/lib/constants";
+import { PhoneLogin } from "@/components/auth/phone-login";
 
 function mapError(code: string): string {
   if (code.includes("auth/invalid-credential") || code.includes("wrong-password"))
@@ -29,17 +29,15 @@ export default function LoginPage() {
 }
 
 function LoginInner() {
-  const { profile, signInEmail, registerEmail, signInGoogle } = useAuth();
+  const { profile, signInGoogle } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
-  const [mode, setMode] = useState<"login" | "register">("login");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPushCode, setShowPushCode] = useState(false);
 
   const next = params.get("next");
+  const oauthError = params.get("error");
 
   useEffect(() => {
     if (profile) {
@@ -54,20 +52,6 @@ function LoginInner() {
     }
   }, [profile, next, router]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setBusy(true);
-    try {
-      if (mode === "login") await signInEmail(email, password);
-      else await registerEmail(email, password, name);
-    } catch (err) {
-      setError(mapError(err instanceof Error ? err.message : String(err)));
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function handleGoogle() {
     setError("");
     setBusy(true);
@@ -78,6 +62,12 @@ function LoginInner() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function oauthHref(provider: "yandex" | "vk") {
+    const params = new URLSearchParams();
+    if (next) params.set("next", next);
+    return `/api/auth/oauth/${provider}?${params.toString()}`;
   }
 
   return (
@@ -99,109 +89,86 @@ function LoginInner() {
               <span className="text-lg font-semibold tracking-[0.3em]">ОМУТ</span>
             </div>
             <h1 className="mt-5 text-2xl font-semibold">
-              {mode === "login" ? "Вход в кабинет" : "Регистрация"}
+              Вход в кабинет
             </h1>
             <p className="mt-2 text-sm text-mute">
-              {BUSINESS.fullName}
+              Бесплатно: Google, Яндекс, VK. После входа можно включить push-код.
             </p>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 rounded-full border border-line p-1 text-sm">
-            <button
-              onClick={() => setMode("login")}
-              className={`rounded-full py-2 transition-colors ${mode === "login" ? "bg-aqua text-abyss font-medium" : "text-mist"}`}
-            >
-              Вход
-            </button>
-            <button
-              onClick={() => setMode("register")}
-              className={`rounded-full py-2 transition-colors ${mode === "register" ? "bg-aqua text-abyss font-medium" : "text-mist"}`}
-            >
-              Регистрация
-            </button>
-          </div>
+          {oauthError && (
+            <p className="mt-5 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">
+              Не удалось выполнить вход. Проверьте настройки провайдера.
+            </p>
+          )}
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-            {mode === "register" && (
-              <Field
-                icon={<User2 className="h-4 w-4" />}
-                placeholder="Имя"
-                value={name}
-                onChange={setName}
-                type="text"
-              />
-            )}
-            <Field
-              icon={<Mail className="h-4 w-4" />}
-              placeholder="Email"
-              value={email}
-              onChange={setEmail}
-              type="email"
-            />
-            <Field
-              icon={<Lock className="h-4 w-4" />}
-              placeholder="Пароль"
-              value={password}
-              onChange={setPassword}
-              type="password"
-            />
+          {error && (
+            <p className="mt-5 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">
+              {error}
+            </p>
+          )}
 
-            {error && (
-              <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">
-                {error}
-              </p>
-            )}
+          {!showPushCode ? (
+            <div className="mt-6 space-y-3">
+              <Button
+                type="button"
+                className="w-full"
+                onClick={handleGoogle}
+                disabled={busy}
+              >
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                Продолжить с Google
+              </Button>
 
-            <Button type="submit" className="w-full" disabled={busy}>
-              {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-              {mode === "login" ? "Войти" : "Создать аккаунт"}
-            </Button>
-          </form>
+              <ProviderLink href={oauthHref("yandex")} label="Продолжить с Яндекс ID">
+                <YandexIcon />
+              </ProviderLink>
 
-          <div className="my-5 flex items-center gap-3 text-xs text-mute">
-            <span className="h-px flex-1 bg-line" /> или <span className="h-px flex-1 bg-line" />
-          </div>
+              <ProviderLink href={oauthHref("vk")} label="Продолжить с VK ID">
+                <VkIcon />
+              </ProviderLink>
 
-          <Button
-            type="button"
-            variant="subtle"
-            className="w-full"
-            onClick={handleGoogle}
-            disabled={busy}
-          >
-            <GoogleIcon /> Продолжить с Google
-          </Button>
+              <div className="my-5 flex items-center gap-3 text-xs text-mute">
+                <span className="h-px flex-1 bg-line" /> уже включали push{" "}
+                <span className="h-px flex-1 bg-line" />
+              </div>
+
+              <Button
+                type="button"
+                variant="subtle"
+                className="w-full"
+                onClick={() => setShowPushCode(true)}
+              >
+                <Bell className="h-4 w-4" /> Войти по push-коду
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-6">
+              <PhoneLogin onSuccess={() => router.replace(next ?? "/cabinet")} />
+            </div>
+          )}
         </div>
       </div>
     </main>
   );
 }
 
-function Field({
-  icon,
-  placeholder,
-  value,
-  onChange,
-  type,
+function ProviderLink({
+  href,
+  label,
+  children,
 }: {
-  icon: React.ReactNode;
-  placeholder: string;
-  value: string;
-  onChange: (v: string) => void;
-  type: string;
+  href: string;
+  label: string;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 focus-within:border-aqua/50">
-      <span className="text-mute">{icon}</span>
-      <input
-        type={type}
-        required
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-12 w-full bg-transparent text-sm text-foam outline-none placeholder:text-mute"
-      />
-    </div>
+    <Link
+      href={href}
+      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-line bg-surface-2 text-sm font-medium text-foam transition-colors hover:bg-surface"
+    >
+      {children} {label}
+    </Link>
   );
 }
 
@@ -225,5 +192,21 @@ function GoogleIcon() {
         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"
       />
     </svg>
+  );
+}
+
+function YandexIcon() {
+  return (
+    <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-sm font-bold text-red-600">
+      Я
+    </span>
+  );
+}
+
+function VkIcon() {
+  return (
+    <span className="grid h-5 w-5 place-items-center rounded-md bg-[#2787f5] text-xs font-bold text-white">
+      VK
+    </span>
   );
 }

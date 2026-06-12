@@ -36,6 +36,8 @@ DATABASE_URL="postgresql://omut:${DBPASS}@localhost:5432/omut?schema=public"
 NODE_ENV=production
 NEXT_PUBLIC_SITE_URL=http://${PUBLIC_HOST}
 BOOTSTRAP_ADMIN_EMAILS=
+BOOTSTRAP_ADMIN_PHONES=
+SESSION_SECRET=$(openssl rand -hex 32)
 
 # --- Firebase (client, public) --- fill these in ---
 NEXT_PUBLIC_FIREBASE_API_KEY=
@@ -51,6 +53,12 @@ NEXT_PUBLIC_FIREBASE_VAPID_KEY=
 FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
+
+# --- Free OAuth providers for first login ---
+YANDEX_CLIENT_ID=
+YANDEX_CLIENT_SECRET=
+VK_CLIENT_ID=
+VK_CLIENT_SECRET=
 EOF
   chmod 600 "$APP_DIR/.env"
   echo "    Created $APP_DIR/.env"
