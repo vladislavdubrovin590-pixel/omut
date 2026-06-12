@@ -36,10 +36,10 @@ export function SiteFooter() {
         <div className="space-y-2 text-sm">
           <p className="font-medium text-foam">Навигация</p>
           <div className="flex flex-col gap-1.5 text-mist">
-            <a href="/#services" className="hover:text-foam">Услуги</a>
-            <a href="/#gallery" className="hover:text-foam">Работы</a>
+            <Link href="/#services" className="hover:text-foam">Услуги</Link>
+            <Link href="/#gallery" className="hover:text-foam">Работы</Link>
             <Link href="/login" className="hover:text-foam">Личный кабинет</Link>
-            <Link href="/book" className="hover:text-foam">Онлайн-запись</Link>
+            <Link href="/cabinet/book" className="hover:text-foam">Онлайн-запись</Link>
           </div>
         </div>
       </div>

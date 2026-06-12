@@ -61,7 +61,7 @@ async function postSession(idToken: string) {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isFirebaseConfigured);
 
   const refreshProfile = useCallback(async () => {
     try {
@@ -78,10 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!isFirebaseConfigured) {
-      setLoading(false);
-      return;
-    }
+    if (!isFirebaseConfigured) return;
     const unsub = onAuthStateChanged(requireAuth(), async (fbUser) => {
       setFirebaseUser(fbUser);
       if (fbUser) {
