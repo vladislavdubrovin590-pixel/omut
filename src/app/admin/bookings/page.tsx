@@ -49,7 +49,7 @@ export default async function AdminBookings({
     prisma.user.findMany({
       where: { role: { in: ["WORKER", "ADMIN"] } },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, phone: true },
+      select: { id: true, name: true, phone: true, employeeStatus: true },
     }),
   ]);
 
@@ -107,7 +107,12 @@ function Section({
   title: string;
   groups: [string, BookingRow[]][];
   muted?: boolean;
-  workers: { id: string; name: string | null; phone: string | null }[];
+  workers: {
+    id: string;
+    name: string | null;
+    phone: string | null;
+    employeeStatus: string;
+  }[];
 }) {
   if (groups.length === 0) {
     return (
@@ -152,6 +157,15 @@ function Section({
                         {b.car.make} {b.car.model}
                         {b.car.plate ? ` · ${b.car.plate}` : ""}
                       </p>
+                    )}
+                    {b.worker && (
+                      <div className="mt-3 w-fit rounded-xl border border-aqua/20 bg-aqua/10 px-3 py-2 text-xs text-mist">
+                        <span className="font-medium text-foam">
+                          {b.worker.name ?? "Сотрудник"}
+                        </span>
+                        {b.worker.phone ? ` · ${b.worker.phone}` : ""}
+                        {b.worker.employeeStatus === "DISMISSED" ? " · уволен" : ""}
+                      </div>
                     )}
                   </div>
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">

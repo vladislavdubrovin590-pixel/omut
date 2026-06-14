@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
 import { normalizePhone } from "@/lib/phone";
 import { requireRole } from "@/lib/session";
-import type { BookingStatus, Role } from "@prisma/client";
+import type { BookingStatus, EmployeeStatus, Role } from "@prisma/client";
 
 export async function updateBookingStatus(
   bookingId: string,
@@ -20,6 +20,17 @@ export async function updateBookingStatus(
 
 export async function assignBookingWorker(bookingId: string, workerId: string) {
   await requireRole(["ADMIN"]);
+  if (workerId) {
+    const worker = await prisma.user.findFirst({
+      where: {
+        id: workerId,
+        role: { in: ["WORKER", "ADMIN"] },
+        employeeStatus: "ACTIVE",
+      },
+      select: { id: true },
+    });
+    if (!worker) return { ok: false, error: "Сотрудник уволен или не найден" };
+  }
   await prisma.booking.update({
     where: { id: bookingId },
     data: { workerId: workerId || null },
@@ -123,6 +134,7 @@ export async function saveEmployee(input: {
   phone: string;
   email?: string;
   role: "WORKER" | "ADMIN";
+  employeeStatus?: EmployeeStatus;
   password?: string;
   note?: string;
 }) {
@@ -139,6 +151,7 @@ export async function saveEmployee(input: {
     phone,
     email: input.email?.trim() || null,
     role: input.role,
+    employeeStatus: input.employeeStatus ?? "ACTIVE",
     note: input.note?.trim() || null,
     ...(input.password ? { passwordHash: hashPassword(input.password) } : {}),
   };
@@ -147,13 +160,18 @@ export async function saveEmployee(input: {
     if (input.id === admin.id && input.role !== "ADMIN") {
       return { ok: false, error: "Нельзя снять права администратора с себя" };
     }
+    if (input.id === admin.id && input.employeeStatus === "DISMISSED") {
+      return { ok: false, error: "Нельзя уволить текущего администратора" };
+    }
     await prisma.user.update({ where: { id: input.id }, data });
   } else {
     await prisma.user.create({ data });
   }
 
   revalidatePath("/admin/employees");
+  if (input.id) revalidatePath(`/admin/employees/${input.id}`);
   revalidatePath("/admin/clients");
+  revalidatePath("/admin/bookings");
   return { ok: true };
 }
 

@@ -8,6 +8,7 @@ type WorkerOpt = {
   id: string;
   name: string | null;
   phone: string | null;
+  employeeStatus: string;
 };
 
 export function BookingWorkerSelect({
@@ -34,12 +35,19 @@ export function BookingWorkerSelect({
             await assignBookingWorker(bookingId, next);
           });
         }}
-        className="h-10 w-full rounded-lg border border-line bg-surface px-3 text-xs text-foam outline-none focus:border-aqua/50 sm:w-44"
+        className="h-10 w-full rounded-lg border border-line bg-surface px-3 text-xs text-foam outline-none focus:border-aqua/50 sm:w-56"
       >
         <option value="" className="bg-surface">Назначить</option>
         {workers.map((worker) => (
-          <option key={worker.id} value={worker.id} className="bg-surface">
-            {worker.name ?? worker.phone ?? "Сотрудник"}
+          <option
+            key={worker.id}
+            value={worker.id}
+            disabled={worker.employeeStatus === "DISMISSED"}
+            className="bg-surface"
+          >
+            {worker.name ?? "Сотрудник"}
+            {worker.phone ? ` · ${worker.phone}` : ""}
+            {worker.employeeStatus === "DISMISSED" ? " · уволен" : ""}
           </option>
         ))}
       </select>

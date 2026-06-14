@@ -71,6 +71,8 @@ const STATUS_STYLES: Record<string, string> = {
   COMPLETED: "bg-teal/15 text-teal",
   CANCELLED: "bg-red-500/15 text-red-300",
   NO_SHOW: "bg-mute/15 text-mute",
+  ACTIVE: "bg-teal/15 text-teal",
+  DISMISSED: "bg-red-500/15 text-red-300",
 };
 
 export function StatusBadge({

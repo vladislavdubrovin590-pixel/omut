@@ -30,6 +30,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (user.role !== "CLIENT" && user.employeeStatus === "DISMISSED") {
+      return NextResponse.json(
+        { error: "Сотрудник уволен, доступ закрыт" },
+        { status: 403 },
+      );
+    }
+
     await createAppSession(user);
 
     return NextResponse.json({

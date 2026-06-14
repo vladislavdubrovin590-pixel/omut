@@ -38,6 +38,11 @@ enum VisitStatus {
   COMPLETED
 }
 
+enum EmployeeStatus {
+  ACTIVE
+  DISMISSED
+}
+
 enum PushAudience {
   ALL
   CLIENT
@@ -55,6 +60,7 @@ model User {
   avatarUrl   String?
   note        String? // internal admin note
   bonusDiscountPercent Int @default(0)
+  employeeStatus EmployeeStatus @default(ACTIVE)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   cars        Car[]
@@ -68,6 +74,7 @@ model User {
 
   @@index([role])
   @@index([phone])
+  @@index([employeeStatus])
 }
 
 model OAuthAccount {

@@ -99,7 +99,9 @@ export async function getSessionUser(): Promise<User | null> {
   if (isPhoneSessionToken(cookie)) {
     const userId = verifyPhoneSession(cookie);
     if (!userId) return null;
-    return prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (user?.role !== "CLIENT" && user?.employeeStatus === "DISMISSED") return null;
+    return user;
   }
 
   // Firebase session
@@ -108,6 +110,7 @@ export async function getSessionUser(): Promise<User | null> {
     const user = await prisma.user.findUnique({
       where: { firebaseUid: decoded.uid },
     });
+    if (user?.role !== "CLIENT" && user?.employeeStatus === "DISMISSED") return null;
     return user;
   } catch {
     return null;

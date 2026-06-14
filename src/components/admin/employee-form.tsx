@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { Role } from "@prisma/client";
+import type { EmployeeStatus, Role } from "@prisma/client";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { saveEmployee } from "@/lib/actions/admin";
 
@@ -11,6 +11,7 @@ type Employee = {
   phone: string | null;
   email: string | null;
   role: Role;
+  employeeStatus: EmployeeStatus;
   note: string | null;
 };
 
@@ -31,6 +32,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
             phone: String(formData.get("phone") ?? ""),
             email: String(formData.get("email") ?? ""),
             role: String(formData.get("role") ?? "WORKER") as "WORKER" | "ADMIN",
+            employeeStatus: String(formData.get("employeeStatus") ?? "ACTIVE") as EmployeeStatus,
             password: String(formData.get("password") ?? ""),
             note: String(formData.get("note") ?? ""),
           });
@@ -39,7 +41,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       }}
     >
       <label className="space-y-1 text-sm">
-        <span className="text-mute">Имя</span>
+        <span className="text-mute">ФИО</span>
         <input
           name="name"
           defaultValue={employee?.name ?? ""}
@@ -48,7 +50,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
         />
       </label>
       <label className="space-y-1 text-sm">
-        <span className="text-mute">Телефон</span>
+        <span className="text-mute">Телефон для входа</span>
         <PhoneInput
           name="phone"
           value={phone}
@@ -76,6 +78,17 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
         >
           <option value="WORKER">Сотрудник</option>
           <option value="ADMIN">Администратор</option>
+        </select>
+      </label>
+      <label className="space-y-1 text-sm">
+        <span className="text-mute">Статус</span>
+        <select
+          name="employeeStatus"
+          defaultValue={employee?.employeeStatus ?? "ACTIVE"}
+          className="w-full rounded-xl border border-line bg-abyss px-3 py-2 text-foam outline-none focus:border-aqua"
+        >
+          <option value="ACTIVE">Не уволен</option>
+          <option value="DISMISSED">Уволен</option>
         </select>
       </label>
       <label className="space-y-1 text-sm md:col-span-2">
