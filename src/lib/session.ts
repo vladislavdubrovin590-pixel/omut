@@ -16,7 +16,9 @@ function setSessionCookie(value: string) {
   return cookies().then((store) => {
     store.set(SESSION_COOKIE, value, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // Keep this false while the temporary IP/HTTP entrypoint is used.
+      // Enable with FORCE_SECURE_COOKIES=true after HTTPS domain migration.
+      secure: process.env.FORCE_SECURE_COOKIES === "true",
       sameSite: "lax",
       maxAge: FIVE_DAYS_MS / 1000,
       path: "/",
