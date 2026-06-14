@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -50,12 +51,14 @@ type Item = VisitItemInput & { key: string };
 export function WorkerConsole({
   bookings,
   services,
+  initialTab,
 }: {
   bookings: BookingDTO[];
   services: ServiceDTO[];
+  initialTab: "today" | "new";
 }) {
   const router = useRouter();
-  const [tab, setTab] = useState<"today" | "new">("today");
+  const [activeTab, setActiveTab] = useState<"today" | "new">(initialTab);
 
   // visit form state
   const [client, setClient] = useState<{ id: string; name: string } | null>(null);
@@ -97,7 +100,8 @@ export function WorkerConsole({
     setNote("");
     setError("");
     setOk(false);
-    setTab("new");
+    setActiveTab("new");
+    router.replace("/worker?tab=new", { scroll: false });
   }
 
   function resetForm() {
@@ -175,24 +179,26 @@ export function WorkerConsole({
   return (
     <div>
       <div className="mb-6 inline-flex rounded-full border border-line p-1 text-sm">
-        <button
-          onClick={() => setTab("today")}
+        <Link
+          href="/worker?tab=today"
+          onClick={() => setActiveTab("today")}
           className={cn(
             "rounded-full px-5 py-2 transition-colors",
-            tab === "today" ? "bg-aqua text-abyss font-medium" : "text-mist",
+            activeTab === "today" ? "bg-aqua text-abyss font-medium" : "text-mist",
           )}
         >
           Записи сегодня
-        </button>
-        <button
-          onClick={() => setTab("new")}
+        </Link>
+        <Link
+          href="/worker?tab=new"
+          onClick={() => setActiveTab("new")}
           className={cn(
             "rounded-full px-5 py-2 transition-colors",
-            tab === "new" ? "bg-aqua text-abyss font-medium" : "text-mist",
+            activeTab === "new" ? "bg-aqua text-abyss font-medium" : "text-mist",
           )}
         >
           Оформить визит
-        </button>
+        </Link>
       </div>
 
       {ok && (
@@ -201,7 +207,7 @@ export function WorkerConsole({
         </div>
       )}
 
-      {tab === "today" ? (
+      {activeTab === "today" ? (
         <TodayList bookings={bookings} onStartVisit={startVisitFromBooking} />
       ) : (
         <VisitForm

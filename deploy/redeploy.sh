@@ -15,6 +15,9 @@ npm ci
 echo "==> Applying database schema"
 npx prisma db push --skip-generate --accept-data-loss
 
+echo "==> Seeding database"
+npx prisma db seed
+
 echo "==> Building"
 npm run build
 

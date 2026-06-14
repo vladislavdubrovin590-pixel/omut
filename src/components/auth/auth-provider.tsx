@@ -78,6 +78,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    refreshProfile().finally(() => {
+      if (!cancelled && !isFirebaseConfigured) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshProfile]);
+
+  useEffect(() => {
     if (!isFirebaseConfigured) return;
     const unsub = onAuthStateChanged(requireAuth(), async (fbUser) => {
       setFirebaseUser(fbUser);

@@ -5,8 +5,14 @@ import { WorkerConsole } from "@/components/worker/worker-console";
 
 export const metadata = { title: "Приёмка" };
 
-export default async function WorkerPage() {
+export default async function WorkerPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   await requirePageUser(["WORKER", "ADMIN"]);
+  const params = await searchParams;
+  const initialTab = params.tab === "new" ? "new" : "today";
 
   const start = new Date();
   start.setHours(0, 0, 0, 0);
@@ -52,7 +58,7 @@ export default async function WorkerPage() {
         title="Приёмка автомобилей"
         subtitle="Подтверждайте приезд и оформляйте выполненные услуги"
       />
-      <WorkerConsole bookings={dto} services={services} />
+      <WorkerConsole bookings={dto} services={services} initialTab={initialTab} />
     </>
   );
 }
