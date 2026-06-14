@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import type { BodyClass } from "@prisma/client";
 import { CarCatalogFields } from "@/components/cars/car-catalog-fields";
+import { AlertModal } from "@/components/ui/alert-modal";
 import { Button } from "@/components/ui/button";
 import { saveClientCar, deleteClientCar } from "@/lib/actions/profile";
 import { BODY_CLASS_LABELS } from "@/lib/utils";
@@ -24,10 +25,12 @@ export function CarsManager({ cars }: { cars: CarRow[] }) {
   const [plate, setPlate] = useState("");
   const [bodyClass, setBodyClass] = useState<BodyClass>("B");
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
   function save() {
     setMessage("");
+    setError("");
     startTransition(async () => {
       const result = await saveClientCar({ make, model, plate, bodyClass });
       if (result.ok) {
@@ -37,13 +40,19 @@ export function CarsManager({ cars }: { cars: CarRow[] }) {
         setBodyClass("B");
         setMessage("Автомобиль добавлен");
       } else {
-        setMessage(result.error ?? "Не удалось сохранить");
+        setError(result.error ?? "Не удалось сохранить автомобиль");
       }
     });
   }
 
   return (
     <div className="space-y-4">
+      <AlertModal
+        title="Автомобиль не сохранён"
+        message={error}
+        onClose={() => setError("")}
+      />
+
       <div className="rounded-2xl border border-line bg-white/[0.02] p-3">
         <CarCatalogFields
           make={make}

@@ -14,6 +14,7 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AlertModal } from "@/components/ui/alert-modal";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { CarCatalogFields } from "@/components/cars/car-catalog-fields";
 import { Card, EmptyState, StatusBadge } from "@/components/dashboard/ui";
@@ -174,6 +175,12 @@ export function WorkerConsole({
 
   return (
     <div>
+      <AlertModal
+        title="Визит не сохранён"
+        message={error}
+        onClose={() => setError("")}
+      />
+
       <div className="mb-6 grid w-full grid-cols-2 rounded-full border border-line p-1 text-sm sm:inline-grid sm:w-auto">
         <Link
           href="/worker?tab=today"
@@ -228,7 +235,6 @@ export function WorkerConsole({
           overrideTotal={overrideTotal}
           setOverrideTotal={setOverrideTotal}
           total={total}
-          error={error}
           busy={busy}
           onSave={handleSave}
         />
@@ -328,7 +334,6 @@ type VisitFormProps = {
   overrideTotal: string;
   setOverrideTotal: (v: string) => void;
   total: number;
-  error: string;
   busy: boolean;
   onSave: () => void;
 };
@@ -457,10 +462,6 @@ function VisitForm(p: VisitFormProps) {
           className="mt-3 w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-foam outline-none focus:border-aqua/50"
         />
       </Card>
-
-      {p.error && (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{p.error}</p>
-      )}
 
       <div className="sticky bottom-24 flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-line bg-deep/95 p-4 backdrop-blur sm:bottom-4 sm:flex-row sm:items-center sm:gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

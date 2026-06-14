@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import type { EmployeeStatus, Role } from "@prisma/client";
+import { AlertModal } from "@/components/ui/alert-modal";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { saveEmployee } from "@/lib/actions/admin";
 
@@ -17,6 +18,7 @@ type Employee = {
 
 export function EmployeeForm({ employee }: { employee?: Employee }) {
   const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState("");
   const [phone, setPhone] = useState(employee?.phone ?? "");
   const [pending, startTransition] = useTransition();
 
@@ -25,6 +27,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       className="grid gap-3 rounded-2xl border border-line bg-white/[0.03] p-3 sm:p-4 md:grid-cols-2"
       action={(formData) => {
         setMessage(null);
+        setError("");
         startTransition(async () => {
           const result = await saveEmployee({
             id: employee?.id,
@@ -36,10 +39,17 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
             password: String(formData.get("password") ?? ""),
             note: String(formData.get("note") ?? ""),
           });
-          setMessage(result.ok ? "Сохранено" : result.error ?? "Ошибка сохранения");
+          if (result.ok) setMessage("Сохранено");
+          else setError(result.error ?? "Ошибка сохранения");
         });
       }}
     >
+      <AlertModal
+        title="Сотрудник не сохранён"
+        message={error}
+        onClose={() => setError("")}
+      />
+
       <label className="space-y-1 text-sm">
         <span className="text-mute">ФИО</span>
         <input

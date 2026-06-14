@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Loader2, CalendarCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AlertModal } from "@/components/ui/alert-modal";
 import { CarCatalogFields } from "@/components/cars/car-catalog-fields";
 import { createBooking } from "@/lib/actions/booking";
 import { formatRub, BODY_CLASS_LABELS } from "@/lib/utils";
@@ -136,6 +137,12 @@ export function BookingForm({
 
   return (
     <form onSubmit={submit} className="space-y-8">
+      <AlertModal
+        title="Запись не создана"
+        message={error}
+        onClose={() => setError("")}
+      />
+
       <section>
         <h2 className="mb-3 text-lg font-semibold">1. Выберите услуги</h2>
         <div className="space-y-5">
@@ -267,10 +274,6 @@ export function BookingForm({
           className="mt-3 w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-foam outline-none focus:border-aqua/50"
         />
       </section>
-
-      {error && (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>
-      )}
 
       <div className="sticky bottom-24 flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-line bg-deep/95 p-4 backdrop-blur sm:bottom-4 sm:flex-row sm:items-center sm:gap-4">
         <div>

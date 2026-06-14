@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Loader2, Plus } from "lucide-react";
+import { AlertModal } from "@/components/ui/alert-modal";
 import { savePromotion } from "@/lib/actions/admin";
 import { Card } from "@/components/dashboard/ui";
 
@@ -22,9 +23,11 @@ function dateValue(value: Date | null) {
 export function PromotionsManager({ promotions }: { promotions: PromotionRow[] }) {
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   function submit(formData: FormData, id?: string) {
     setMessage("");
+    setError("");
     startTransition(async () => {
       const result = await savePromotion({
         id,
@@ -35,12 +38,19 @@ export function PromotionsManager({ promotions }: { promotions: PromotionRow[] }
         startsAt: String(formData.get("startsAt") ?? "") || undefined,
         endsAt: String(formData.get("endsAt") ?? "") || undefined,
       });
-      setMessage(result.ok ? "Сохранено" : result.error ?? "Ошибка");
+      if (result.ok) setMessage("Сохранено");
+      else setError(result.error ?? "Ошибка сохранения акции");
     });
   }
 
   return (
     <div className="space-y-4">
+      <AlertModal
+        title="Акция не сохранена"
+        message={error}
+        onClose={() => setError("")}
+      />
+
       <Card>
         <h2 className="mb-4 text-lg font-semibold text-foam">Новая акция</h2>
         <PromotionForm pending={pending} onSubmit={(fd) => submit(fd)} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { AlertModal } from "@/components/ui/alert-modal";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { updateClientCard } from "@/lib/actions/admin";
 
@@ -15,6 +16,7 @@ type Client = {
 
 export function ClientCardForm({ client }: { client: Client }) {
   const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState("");
   const [phone, setPhone] = useState(client.phone ?? "");
   const [pending, startTransition] = useTransition();
 
@@ -23,6 +25,7 @@ export function ClientCardForm({ client }: { client: Client }) {
       className="grid gap-3"
       action={(formData) => {
         setMessage(null);
+        setError("");
         startTransition(async () => {
           const result = await updateClientCard({
             userId: client.id,
@@ -32,10 +35,17 @@ export function ClientCardForm({ client }: { client: Client }) {
             note: String(formData.get("note") ?? ""),
             bonusDiscountPercent: Number(formData.get("bonusDiscountPercent") ?? 0),
           });
-          setMessage(result.ok ? "Карточка сохранена" : result.error ?? "Ошибка");
+          if (result.ok) setMessage("Карточка сохранена");
+          else setError(result.error ?? "Ошибка сохранения");
         });
       }}
     >
+      <AlertModal
+        title="Карточка не сохранена"
+        message={error}
+        onClose={() => setError("")}
+      />
+
       <label className="space-y-1 text-sm">
         <span className="text-mute">Имя</span>
         <input
