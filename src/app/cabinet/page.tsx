@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, CalendarPlus, Wallet, Car } from "lucide-react";
+import { CalendarClock, CalendarPlus, Clock, Wallet, Car } from "lucide-react";
 import { requirePageUser } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 import { ButtonLink } from "@/components/ui/button";
@@ -10,7 +10,12 @@ import {
   StatCard,
   StatusBadge,
 } from "@/components/dashboard/ui";
-import { formatDate, formatRub, BOOKING_STATUS_LABELS } from "@/lib/utils";
+import {
+  bookingDisplayTotal,
+  formatDate,
+  formatRub,
+  BOOKING_STATUS_LABELS,
+} from "@/lib/utils";
 
 export default async function CabinetHome() {
   const user = await requirePageUser();
@@ -89,31 +94,57 @@ export default async function CabinetHome() {
           />
         ) : (
           <div className="space-y-3">
-            {upcoming.map((b) => (
-              <Card key={b.id} className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="font-medium text-foam">
-                      {formatDate(b.scheduledAt, true)}
-                    </span>
-                    <StatusBadge status={b.status} label={BOOKING_STATUS_LABELS[b.status]} />
+            {upcoming.map((b) => {
+              const total = bookingDisplayTotal(b.status, b.estimatedTotal, b.services);
+              return (
+                <Card key={b.id} className="overflow-hidden p-0">
+                  <div className="border-b border-line bg-aqua/5 p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-start gap-3">
+                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-aqua/10 text-aqua">
+                          <CalendarClock className="h-5 w-5" />
+                        </span>
+                        <div>
+                          <div className="font-semibold text-foam">
+                            {formatDate(b.scheduledAt)}
+                          </div>
+                          <div className="mt-1 flex items-center gap-1.5 text-sm text-mist">
+                            <Clock className="h-3.5 w-3.5" />
+                            {new Intl.DateTimeFormat("ru-RU", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }).format(b.scheduledAt)}
+                          </div>
+                        </div>
+                      </div>
+                      <StatusBadge status={b.status} label={BOOKING_STATUS_LABELS[b.status]} />
+                    </div>
                   </div>
-                  <p className="mt-1 text-sm text-mist">
-                    {b.services.map((s) => s.service.title).join(", ") || "Услуги уточняются"}
-                  </p>
-                  {b.car && (
-                    <p className="mt-0.5 text-xs text-mute">
-                      {b.car.make} {b.car.model}
-                      {b.car.plate ? ` · ${b.car.plate}` : ""}
-                    </p>
-                  )}
-                </div>
-                <div className="sm:text-right">
-                  <div className="text-xs text-mute">оценка</div>
-                  <div className="font-semibold text-aqua">{formatRub(b.estimatedTotal)}</div>
-                </div>
-              </Card>
-            ))}
+
+                  <div className="space-y-3 p-4">
+                    <div>
+                      <div className="text-xs uppercase tracking-wide text-mute">Услуги</div>
+                      <p className="mt-1 text-sm text-foam">
+                        {b.services.map((s) => s.service.title).join(", ") || "Услуги уточняются"}
+                      </p>
+                    </div>
+                    {b.car && (
+                      <div className="rounded-xl border border-line bg-abyss/40 p-3">
+                        <div className="text-xs uppercase tracking-wide text-mute">Автомобиль</div>
+                        <div className="mt-1 text-sm text-mist">
+                          {b.car.make} {b.car.model}
+                          {b.car.plate ? ` · ${b.car.plate}` : ""}
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between rounded-xl border border-aqua/20 bg-aqua/10 px-3 py-2">
+                      <span className="text-sm text-mist">Предварительная стоимость</span>
+                      <span className="font-semibold text-aqua">{formatRub(total)}</span>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
         )}
       </section>

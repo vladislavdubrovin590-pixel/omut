@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, EmptyState, PageHeading } from "@/components/dashboard/ui";
 import { BookingStatusSelect } from "@/components/admin/booking-status-select";
 import { BookingWorkerSelect } from "@/components/admin/booking-worker-select";
-import { formatDate, formatRub } from "@/lib/utils";
+import { bookingDisplayTotal, formatDate, formatRub } from "@/lib/utils";
 
 export const metadata = { title: "Записи" };
 
@@ -132,11 +132,13 @@ function Section({
               {formatDate(new Date(day))}
             </p>
             <div className="space-y-2">
-              {rows.map((b) => (
-                <Card
-                  key={b.id}
-                  className={`flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center ${muted ? "opacity-80" : ""}`}
-                >
+              {rows.map((b) => {
+                const total = bookingDisplayTotal(b.status, b.estimatedTotal, b.services);
+                return (
+                  <Card
+                    key={b.id}
+                    className={`flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center ${muted ? "opacity-80" : ""}`}
+                  >
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
                       <span className="font-medium text-foam">
@@ -169,7 +171,7 @@ function Section({
                     )}
                   </div>
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                    <span className="font-semibold text-aqua">{formatRub(b.estimatedTotal)}</span>
+                    <span className="font-semibold text-aqua">{formatRub(total)}</span>
                     <BookingWorkerSelect
                       bookingId={b.id}
                       workerId={b.workerId}
@@ -177,8 +179,9 @@ function Section({
                     />
                     <BookingStatusSelect bookingId={b.id} status={b.status} />
                   </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           </div>
         ))}

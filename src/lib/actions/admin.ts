@@ -73,6 +73,7 @@ export type ServiceInput = {
 
 export async function saveService(input: ServiceInput) {
   await requireRole(["ADMIN"]);
+  const activeBookingStatuses = ["PENDING", "CONFIRMED", "IN_PROGRESS"] as const;
   const data = {
     slug: input.slug.trim(),
     title: input.title.trim(),
@@ -86,11 +87,46 @@ export async function saveService(input: ServiceInput) {
   };
   if (input.id) {
     await prisma.service.update({ where: { id: input.id }, data });
+    const affectedBookings = await prisma.booking.findMany({
+      where: {
+        status: { in: activeBookingStatuses },
+        services: { some: { serviceId: input.id } },
+      },
+      select: { id: true },
+    });
+    const bookingIds = affectedBookings.map((booking) => booking.id);
+    if (bookingIds.length > 0) {
+      await prisma.bookingService.updateMany({
+        where: { bookingId: { in: bookingIds }, serviceId: input.id },
+        data: { price: data.basePrice },
+      });
+      const bookings = await prisma.booking.findMany({
+        where: { id: { in: bookingIds } },
+        include: { services: { include: { service: true } } },
+      });
+      await Promise.all(
+        bookings.map((booking) =>
+          prisma.booking.update({
+            where: { id: booking.id },
+            data: {
+              estimatedTotal: booking.services.reduce(
+                (sum, item) => sum + item.service.basePrice,
+                0,
+              ),
+            },
+          }),
+        ),
+      );
+    }
   } else {
     await prisma.service.create({ data });
   }
   revalidatePath("/");
   revalidatePath("/admin/services");
+  revalidatePath("/admin/bookings");
+  revalidatePath("/worker");
+  revalidatePath("/cabinet");
+  revalidatePath("/cabinet/bookings");
   return { ok: true };
 }
 

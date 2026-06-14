@@ -11,7 +11,12 @@ import { requirePageUser } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 import { EmployeeForm } from "@/components/admin/employee-form";
 import { Card, EmptyState, PageHeading, StatCard, StatusBadge } from "@/components/dashboard/ui";
-import { BOOKING_STATUS_LABELS, formatDate, formatRub } from "@/lib/utils";
+import {
+  BOOKING_STATUS_LABELS,
+  bookingDisplayTotal,
+  formatDate,
+  formatRub,
+} from "@/lib/utils";
 
 export const metadata = { title: "Карточка сотрудника" };
 
@@ -186,7 +191,13 @@ export default async function EmployeeCardPage({
               />
             ) : (
               <div className="space-y-3">
-                {employee.assignedBookings.map((booking) => (
+                {employee.assignedBookings.map((booking) => {
+                  const total = bookingDisplayTotal(
+                    booking.status,
+                    booking.estimatedTotal,
+                    booking.services,
+                  );
+                  return (
                   <div key={booking.id} className="rounded-xl border border-line bg-white/[0.02] p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
@@ -207,12 +218,13 @@ export default async function EmployeeCardPage({
                           label={BOOKING_STATUS_LABELS[booking.status]}
                         />
                         <div className="mt-2 font-semibold text-aqua">
-                          {formatRub(booking.estimatedTotal)}
+                          {formatRub(total)}
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </Card>

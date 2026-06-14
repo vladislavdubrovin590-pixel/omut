@@ -23,6 +23,17 @@ export function formatDate(date: Date | string, withTime = false): string {
   }).format(d);
 }
 
+const LIVE_BOOKING_STATUSES = new Set(["PENDING", "CONFIRMED", "IN_PROGRESS"]);
+
+export function bookingDisplayTotal(
+  status: string,
+  estimatedTotal: number,
+  services: { price: number; service: { basePrice: number } }[],
+): number {
+  if (!LIVE_BOOKING_STATUSES.has(status)) return estimatedTotal;
+  return services.reduce((sum, item) => sum + item.service.basePrice, 0);
+}
+
 export const BODY_CLASS_LABELS: Record<string, string> = {
   A: "A — малый класс",
   B: "B — седан / хэтчбек",

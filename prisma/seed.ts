@@ -20,12 +20,7 @@ async function main() {
         sortOrder: s.sortOrder,
       },
       update: {
-        title: s.title,
-        shortDesc: s.shortDesc,
-        category: s.category,
-        basePrice: s.basePrice,
-        durationMin: s.durationMin,
-        sortOrder: s.sortOrder,
+        // Do not overwrite admin-edited catalog data on deploy.
       },
     });
   }

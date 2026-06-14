@@ -53,9 +53,9 @@ export default async function WorkerPage({
     services: b.services.map((s) => ({
       serviceId: s.serviceId,
       title: s.service.title,
-      price: s.price,
+      price: s.service.basePrice,
     })),
-    estimatedTotal: b.estimatedTotal,
+    estimatedTotal: b.services.reduce((sum, s) => sum + s.service.basePrice, 0),
     note: b.note,
   }));
 

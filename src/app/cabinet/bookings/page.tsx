@@ -9,7 +9,12 @@ import {
   StatusBadge,
 } from "@/components/dashboard/ui";
 import { CancelButton } from "@/components/cabinet/cancel-button";
-import { formatDate, formatRub, BOOKING_STATUS_LABELS } from "@/lib/utils";
+import {
+  bookingDisplayTotal,
+  formatDate,
+  formatRub,
+  BOOKING_STATUS_LABELS,
+} from "@/lib/utils";
 
 export const metadata = { title: "Мои записи" };
 
@@ -43,7 +48,9 @@ export default async function BookingsPage() {
         />
       ) : (
         <div className="space-y-3">
-          {bookings.map((b) => (
+          {bookings.map((b) => {
+            const total = bookingDisplayTotal(b.status, b.estimatedTotal, b.services);
+            return (
             <Card key={b.id} className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-start">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-3">
@@ -66,12 +73,13 @@ export default async function BookingsPage() {
               <div className="flex flex-col gap-2 sm:items-end">
                 <div className="sm:text-right">
                   <div className="text-xs text-mute">оценка</div>
-                  <div className="font-semibold text-aqua">{formatRub(b.estimatedTotal)}</div>
+                  <div className="font-semibold text-aqua">{formatRub(total)}</div>
                 </div>
                 {cancellable.includes(b.status) && <CancelButton bookingId={b.id} />}
               </div>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </>
