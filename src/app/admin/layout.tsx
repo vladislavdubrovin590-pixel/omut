@@ -5,6 +5,7 @@ const NAV: NavItem[] = [
   { href: "/admin", label: "Аналитика", icon: "BarChart3" },
   { href: "/admin/bookings", label: "Записи", icon: "CalendarDays" },
   { href: "/admin/clients", label: "Клиенты", icon: "Users" },
+  { href: "/admin/employees", label: "Сотрудники", icon: "UserCog" },
   { href: "/admin/services", label: "Услуги", icon: "Wrench" },
   { href: "/admin/content", label: "Контент", icon: "FileText" },
   { href: "/admin/reviews", label: "Отзывы", icon: "Star" },

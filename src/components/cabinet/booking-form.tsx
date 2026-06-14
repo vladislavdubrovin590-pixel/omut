@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 type ServiceOpt = {
   id: string;
+  slug?: string;
   title: string;
   category: string;
   basePrice: number;
@@ -25,9 +26,24 @@ const CAT_LABELS: Record<string, string> = {
   other: "Другое",
 };
 
-export function BookingForm({ services }: { services: ServiceOpt[] }) {
+export function BookingForm({
+  services,
+  initialServiceSlug,
+}: {
+  services: ServiceOpt[];
+  initialServiceSlug?: string;
+}) {
   const router = useRouter();
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(
+    () =>
+      new Set(
+        initialServiceSlug
+          ? services
+              .filter((s) => s.slug === initialServiceSlug)
+              .map((s) => s.id)
+          : [],
+      ),
+  );
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [make, setMake] = useState("");

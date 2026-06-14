@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { hashPassword } from "@/lib/password";
+import { normalizePhone } from "@/lib/phone";
 import { requireRole } from "@/lib/session";
 import type { BookingStatus, Role } from "@prisma/client";
 
@@ -100,6 +102,72 @@ export async function setUserRole(userId: string, role: Role) {
   const admin = await requireRole(["ADMIN"]);
   if (userId === admin.id) return { ok: false, error: "Нельзя изменить свою роль" };
   await prisma.user.update({ where: { id: userId }, data: { role } });
+  revalidatePath("/admin/clients");
+  return { ok: true };
+}
+
+export async function saveEmployee(input: {
+  id?: string;
+  name: string;
+  phone: string;
+  email?: string;
+  role: "WORKER" | "ADMIN";
+  password?: string;
+  note?: string;
+}) {
+  const admin = await requireRole(["ADMIN"]);
+  const phone = normalizePhone(input.phone);
+  if (!phone) return { ok: false, error: "Некорректный телефон" };
+  if (!input.name.trim()) return { ok: false, error: "Укажите имя" };
+  if (!input.id && (!input.password || input.password.length < 6)) {
+    return { ok: false, error: "Пароль минимум 6 символов" };
+  }
+
+  const data = {
+    name: input.name.trim(),
+    phone,
+    email: input.email?.trim() || null,
+    role: input.role,
+    note: input.note?.trim() || null,
+    ...(input.password ? { passwordHash: hashPassword(input.password) } : {}),
+  };
+
+  if (input.id) {
+    if (input.id === admin.id && input.role !== "ADMIN") {
+      return { ok: false, error: "Нельзя снять права администратора с себя" };
+    }
+    await prisma.user.update({ where: { id: input.id }, data });
+  } else {
+    await prisma.user.create({ data });
+  }
+
+  revalidatePath("/admin/employees");
+  revalidatePath("/admin/clients");
+  return { ok: true };
+}
+
+export async function updateClientCard(input: {
+  userId: string;
+  name?: string;
+  phone?: string;
+  email?: string;
+  note?: string;
+}) {
+  await requireRole(["ADMIN"]);
+  const phone = input.phone ? normalizePhone(input.phone) : null;
+  if (input.phone && !phone) return { ok: false, error: "Некорректный телефон" };
+
+  await prisma.user.update({
+    where: { id: input.userId },
+    data: {
+      name: input.name?.trim() || null,
+      phone,
+      email: input.email?.trim() || null,
+      note: input.note?.trim() || null,
+    },
+  });
+
+  revalidatePath(`/admin/clients/${input.userId}`);
   revalidatePath("/admin/clients");
   return { ok: true };
 }

@@ -16,6 +16,7 @@ import {
   LogOut,
   Star,
   User2,
+  UserCog,
   Users,
   Wrench,
   type LucideIcon,
@@ -36,6 +37,7 @@ const ICONS = {
   LayoutDashboard,
   Star,
   User2,
+  UserCog,
   Users,
   Wrench,
 } satisfies Record<string, LucideIcon>;

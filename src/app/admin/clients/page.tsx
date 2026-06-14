@@ -1,4 +1,5 @@
 import { Users } from "lucide-react";
+import Link from "next/link";
 import { requirePageUser } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 import { Card, EmptyState, PageHeading } from "@/components/dashboard/ui";
@@ -46,7 +47,12 @@ export default async function AdminClients() {
                 const spent = u.visits.reduce((s, v) => s + v.totalAmount, 0);
                 return (
                   <tr key={u.id} className="border-b border-line/50 last:border-0">
-                    <td className="px-4 py-3 text-foam">{u.name ?? "—"}</td>
+                    <td className="px-4 py-3 text-foam">
+                      <Link href={`/admin/clients/${u.id}`} className="hover:text-aqua hover:underline">
+                        {u.name ?? "—"}
+                      </Link>
+                      {u.note && <div className="mt-1 text-xs text-amber-200">Есть отметки</div>}
+                    </td>
                     <td className="px-4 py-3 text-mist">
                       <div>{u.phone ?? "—"}</div>
                       {u.email && <div className="text-xs text-mute">{u.email}</div>}
