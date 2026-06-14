@@ -38,7 +38,12 @@ export default async function BookPage({
         title="Запись на услуги"
         subtitle="Выберите услуги, удобное время и автомобиль — мы подтвердим заявку"
       />
-      <BookingForm services={services} cars={cars} initialServiceSlug={params.service} />
+      <BookingForm
+        services={services}
+        cars={cars}
+        initialServiceSlug={params.service}
+        discountPercent={user.bonusDiscountPercent}
+      />
     </>
   );
 }

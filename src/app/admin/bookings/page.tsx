@@ -133,7 +133,12 @@ function Section({
             </p>
             <div className="space-y-2">
               {rows.map((b) => {
-                const total = bookingDisplayTotal(b.status, b.estimatedTotal, b.services);
+                const total = bookingDisplayTotal(
+                  b.status,
+                  b.estimatedTotal,
+                  b.services,
+                  b.user.bonusDiscountPercent,
+                );
                 return (
                   <Card
                     key={b.id}

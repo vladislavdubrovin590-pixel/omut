@@ -49,7 +49,12 @@ export default async function BookingsPage() {
       ) : (
         <div className="space-y-3">
           {bookings.map((b) => {
-            const total = bookingDisplayTotal(b.status, b.estimatedTotal, b.services);
+            const total = bookingDisplayTotal(
+              b.status,
+              b.estimatedTotal,
+              b.services,
+              user.bonusDiscountPercent,
+            );
             return (
             <Card key={b.id} className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-start">
               <div className="min-w-0">

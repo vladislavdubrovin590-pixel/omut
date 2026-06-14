@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { applyPercentDiscount } from "@/lib/utils";
 import type { BodyClass } from "@prisma/client";
 
 export type CreateBookingInput = {
@@ -56,7 +57,11 @@ export async function createBooking(input: CreateBookingInput) {
     carId = car.id;
   }
 
-  const estimatedTotal = services.reduce((sum, s) => sum + s.basePrice, 0);
+  const discountPercent = user.bonusDiscountPercent;
+  const estimatedTotal = services.reduce(
+    (sum, s) => sum + applyPercentDiscount(s.basePrice, discountPercent),
+    0,
+  );
 
   const booking = await prisma.booking.create({
     data: {
@@ -67,7 +72,10 @@ export async function createBooking(input: CreateBookingInput) {
       estimatedTotal,
       status: "PENDING",
       services: {
-        create: services.map((s) => ({ serviceId: s.id, price: s.basePrice })),
+        create: services.map((s) => ({
+          serviceId: s.id,
+          price: applyPercentDiscount(s.basePrice, discountPercent),
+        })),
       },
     },
   });

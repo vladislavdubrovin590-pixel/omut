@@ -196,6 +196,7 @@ export default async function EmployeeCardPage({
                     booking.status,
                     booking.estimatedTotal,
                     booking.services,
+                    booking.user.bonusDiscountPercent,
                   );
                   return (
                   <div key={booking.id} className="rounded-xl border border-line bg-white/[0.02] p-4">

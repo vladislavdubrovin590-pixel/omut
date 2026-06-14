@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
 import { normalizePhone } from "@/lib/phone";
 import { requireRole } from "@/lib/session";
+import { applyPercentDiscount } from "@/lib/utils";
 import type { BookingStatus, EmployeeStatus, Role } from "@prisma/client";
 
 const ACTIVE_BOOKING_STATUSES: BookingStatus[] = [
@@ -111,33 +112,76 @@ async function syncServicePriceUsage(serviceId: string, basePrice: number) {
       status: { in: ACTIVE_BOOKING_STATUSES },
       services: { some: { serviceId } },
     },
-    select: { id: true },
+    select: { id: true, user: { select: { bonusDiscountPercent: true } } },
   });
 
   const bookingIds = affectedBookings.map((booking) => booking.id);
 
   if (bookingIds.length === 0) return;
 
-  await prisma.bookingService.updateMany({
-    where: { bookingId: { in: bookingIds }, serviceId },
-    data: { price: basePrice },
+  await Promise.all(
+    affectedBookings.map((booking) =>
+      prisma.bookingService.updateMany({
+        where: { bookingId: booking.id, serviceId },
+        data: { price: applyPercentDiscount(basePrice, booking.user.bonusDiscountPercent) },
+      }),
+    ),
+  );
+
+  await syncActiveBookingTotals(bookingIds);
+}
+
+async function syncClientDiscountUsage(userId: string) {
+  const affectedBookings = await prisma.booking.findMany({
+    where: {
+      userId,
+      status: { in: ACTIVE_BOOKING_STATUSES },
+    },
+    select: { id: true },
   });
 
+  const bookingIds = affectedBookings.map((booking) => booking.id);
+  if (bookingIds.length === 0) return;
+  await syncActiveBookingTotals(bookingIds);
+}
+
+async function syncActiveBookingTotals(bookingIds: string[]) {
   const bookings = await prisma.booking.findMany({
-    where: { id: { in: bookingIds } },
-    include: { services: { include: { service: true } } },
+    where: { id: { in: bookingIds }, status: { in: ACTIVE_BOOKING_STATUSES } },
+    include: {
+      user: { select: { bonusDiscountPercent: true } },
+      services: { include: { service: true } },
+    },
   });
+
   await Promise.all(
     bookings.map((booking) =>
-      prisma.booking.update({
-        where: { id: booking.id },
-        data: {
-          estimatedTotal: booking.services.reduce(
-            (sum, item) => sum + item.service.basePrice,
-            0,
-          ),
-        },
-      }),
+      prisma.$transaction([
+        ...booking.services.map((item) =>
+          prisma.bookingService.update({
+            where: { id: item.id },
+            data: {
+              price: applyPercentDiscount(
+                item.service.basePrice,
+                booking.user.bonusDiscountPercent,
+              ),
+            },
+          }),
+        ),
+        prisma.booking.update({
+          where: { id: booking.id },
+          data: {
+            estimatedTotal: booking.services.reduce(
+              (sum, item) =>
+                sum + applyPercentDiscount(
+                  item.service.basePrice,
+                  booking.user.bonusDiscountPercent,
+                ),
+              0,
+            ),
+          },
+        }),
+      ]),
     ),
   );
 }
@@ -250,9 +294,15 @@ export async function updateClientCard(input: {
       ),
     },
   });
+  await syncClientDiscountUsage(input.userId);
 
   revalidatePath(`/admin/clients/${input.userId}`);
   revalidatePath("/admin/clients");
+  revalidatePath("/admin/bookings");
+  revalidatePath("/admin/employees");
+  revalidatePath("/worker");
+  revalidatePath("/cabinet");
+  revalidatePath("/cabinet/bookings");
   return { ok: true };
 }
 

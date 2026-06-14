@@ -25,13 +25,31 @@ export function formatDate(date: Date | string, withTime = false): string {
 
 const LIVE_BOOKING_STATUSES = new Set(["PENDING", "CONFIRMED", "IN_PROGRESS"]);
 
+export function normalizeDiscountPercent(value: number | null | undefined): number {
+  return Math.max(0, Math.min(100, Number(value) || 0));
+}
+
+export function applyPercentDiscount(value: number, discountPercent: number | null | undefined): number {
+  const discount = normalizeDiscountPercent(discountPercent);
+  if (discount === 0) return value;
+  return Math.max(0, Math.round(value * (100 - discount) / 100));
+}
+
+export function discountAmount(value: number, discountPercent: number | null | undefined): number {
+  return Math.max(0, value - applyPercentDiscount(value, discountPercent));
+}
+
 export function bookingDisplayTotal(
   status: string,
   estimatedTotal: number,
   services: { price: number; service: { basePrice: number } }[],
+  discountPercent = 0,
 ): number {
   if (!LIVE_BOOKING_STATUSES.has(status)) return estimatedTotal;
-  return services.reduce((sum, item) => sum + item.service.basePrice, 0);
+  return services.reduce(
+    (sum, item) => sum + applyPercentDiscount(item.service.basePrice, discountPercent),
+    0,
+  );
 }
 
 export const BODY_CLASS_LABELS: Record<string, string> = {

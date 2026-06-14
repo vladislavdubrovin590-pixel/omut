@@ -2,6 +2,7 @@ import { requirePageUser } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 import { PageHeading } from "@/components/dashboard/ui";
 import { WorkerConsole } from "@/components/worker/worker-console";
+import { applyPercentDiscount, bookingDisplayTotal } from "@/lib/utils";
 
 export const metadata = { title: "Приёмка" };
 
@@ -49,13 +50,19 @@ export default async function WorkerPage({
     status: b.status,
     clientId: b.userId,
     clientName: b.user.name ?? b.user.phone ?? b.user.email ?? "Клиент",
+    clientDiscountPercent: b.user.bonusDiscountPercent,
     carLabel: b.car ? `${b.car.make} ${b.car.model}${b.car.plate ? ` · ${b.car.plate}` : ""}` : null,
     services: b.services.map((s) => ({
       serviceId: s.serviceId,
       title: s.service.title,
-      price: s.service.basePrice,
+      price: applyPercentDiscount(s.service.basePrice, b.user.bonusDiscountPercent),
     })),
-    estimatedTotal: b.services.reduce((sum, s) => sum + s.service.basePrice, 0),
+    estimatedTotal: bookingDisplayTotal(
+      b.status,
+      b.estimatedTotal,
+      b.services,
+      b.user.bonusDiscountPercent,
+    ),
     note: b.note,
   }));
 

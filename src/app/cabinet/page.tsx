@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, CalendarPlus, Clock, Wallet, Car } from "lucide-react";
+import { BadgePercent, CalendarClock, CalendarPlus, Clock, Wallet, Car } from "lucide-react";
 import { requirePageUser } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 import { ButtonLink } from "@/components/ui/button";
@@ -56,7 +56,7 @@ export default async function CabinetHome() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-5">
         <StatCard
           label="Активных записей"
           value={upcoming.length}
@@ -77,6 +77,12 @@ export default async function CabinetHome() {
           value={carsCount}
           icon={<Car className="h-5 w-5" />}
         />
+        <StatCard
+          label="Ваша скидка"
+          value={`${user.bonusDiscountPercent}%`}
+          hint={user.bonusDiscountPercent > 0 ? "Применяется при записи" : "Пока без персональной скидки"}
+          icon={<BadgePercent className="h-5 w-5" />}
+        />
       </div>
 
       <section className="mt-8">
@@ -95,7 +101,12 @@ export default async function CabinetHome() {
         ) : (
           <div className="space-y-3">
             {upcoming.map((b) => {
-              const total = bookingDisplayTotal(b.status, b.estimatedTotal, b.services);
+              const total = bookingDisplayTotal(
+                b.status,
+                b.estimatedTotal,
+                b.services,
+                user.bonusDiscountPercent,
+              );
               return (
                 <Card key={b.id} className="overflow-hidden p-0">
                   <div className="border-b border-line bg-aqua/5 p-4">

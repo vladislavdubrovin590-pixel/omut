@@ -35,10 +35,78 @@ export default async function HomePage() {
     getActivePromotions(),
   ]);
 
-  const heroTitle = content["hero.title"] ?? BUSINESS.tagline;
-  const heroSubtitle =
-    content["hero.subtitle"] ??
-    "Детейлинг-студия «Омут» в центре Самары. Полировка, химчистка, керамика и защита кузова — с прозрачными ценами и личным кабинетом.";
+  const text = (key: string, fallback: string) => content[key]?.trim() || fallback;
+  const heroTitle = text("hero.title", BUSINESS.tagline);
+  const heroSubtitle = text(
+    "hero.subtitle",
+    "Детейлинг-студия «Омут» в центре Самары. Полировка, химчистка, керамика и защита кузова — с прозрачными ценами и личным кабинетом.",
+  );
+  const heroStats = [
+    {
+      icon: ShieldCheck,
+      value: text("hero.stat1.value", "12 мес"),
+      label: text("hero.stat1.label", "гарантия на керамику"),
+    },
+    {
+      icon: Droplets,
+      value: text("hero.stat2.value", "pH-нейтр."),
+      label: text("hero.stat2.label", "безопасная химия"),
+    },
+    {
+      icon: CarFront,
+      value: text("hero.stat3.value", "Любой класс"),
+      label: text("hero.stat3.label", "от седана до SUV"),
+    },
+    {
+      icon: Clock,
+      value: text("hero.stat4.value", "1 день"),
+      label: text("hero.stat4.label", "большинство работ"),
+    },
+  ];
+  const aboutFeatures = [
+    {
+      icon: ShieldCheck,
+      title: text("about.feature1.title", "Прозрачные цены"),
+      text: text("about.feature1.text", "Стоимость согласуем до начала работ. Никаких сюрпризов на выдаче."),
+    },
+    {
+      icon: Gauge,
+      title: text("about.feature2.title", "Личный кабинет"),
+      text: text("about.feature2.text", "Вся история обращений, выполненные услуги и суммы — онлайн, в любой момент."),
+    },
+    {
+      icon: Sparkles,
+      title: text("about.feature3.title", "Фото- и видеоотчёт"),
+      text: text("about.feature3.text", "Показываем результат до и после. Гарантия на покрытия."),
+    },
+  ];
+  const processSteps = [
+    {
+      n: "01",
+      t: text("process.step1.title", "Заявка"),
+      d: text("process.step1.text", "Записываетесь онлайн или присылаете фото в мессенджер."),
+    },
+    {
+      n: "02",
+      t: text("process.step2.title", "Осмотр и расчёт"),
+      d: text("process.step2.text", "Согласуем услуги, срок и точную стоимость."),
+    },
+    {
+      n: "03",
+      t: text("process.step3.title", "Работа"),
+      d: text("process.step3.text", "Выполняем по технологии, с контролем качества."),
+    },
+    {
+      n: "04",
+      t: text("process.step4.title", "Выдача"),
+      d: text("process.step4.text", "Показываем результат, фиксируем в вашем кабинете."),
+    },
+  ];
+  const ctaTrust = [
+    text("cta.trust1", "Прозрачные цены"),
+    text("cta.trust2", "Гарантия на покрытия"),
+    text("cta.trust3", "Фотоотчёт"),
+  ];
 
   return (
     <>
@@ -52,7 +120,7 @@ export default async function HomePage() {
               <Reveal>
                 <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-aqua/30 bg-aqua/5 px-3 py-1.5 text-left text-xs text-aqua sm:px-4">
                   <Sparkles className="h-3.5 w-3.5" />
-                  Детейлинг в центре Самары · {BUSINESS.address}
+                  {text("hero.badge", `Детейлинг в центре Самары · ${BUSINESS.address}`)}
                 </span>
               </Reveal>
               <Reveal delay={80}>
@@ -80,12 +148,7 @@ export default async function HomePage() {
 
             <Reveal delay={320}>
               <div className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-3 sm:mt-16 sm:grid-cols-4 sm:gap-4">
-                {[
-                  { icon: ShieldCheck, value: "12 мес", label: "гарантия на керамику" },
-                  { icon: Droplets, value: "pH-нейтр.", label: "безопасная химия" },
-                  { icon: CarFront, value: "Любой класс", label: "от седана до SUV" },
-                  { icon: Clock, value: "1 день", label: "большинство работ" },
-                ].map((s) => (
+                {heroStats.map((s) => (
                   <div key={s.label} className="glass rounded-2xl p-4 text-center sm:p-5">
                     <s.icon className="mx-auto h-6 w-6 text-aqua" />
                     <div className="mt-2 text-lg font-semibold text-foam">{s.value}</div>
@@ -102,8 +165,11 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-5">
             <SectionHeading
               eyebrow="Услуги"
-              title="Полный уход за автомобилем"
-              subtitle="Прозрачные цены «от» для класса B. Точную стоимость рассчитаем по фото или на осмотре."
+              title={text("services.title", "Полный уход за автомобилем")}
+              subtitle={text(
+                "services.subtitle",
+                "Прозрачные цены «от» для класса B. Точную стоимость рассчитаем по фото или на осмотре.",
+              )}
             />
             <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
               {services.map((s, i) => (
@@ -146,8 +212,8 @@ export default async function HomePage() {
             <div className="mx-auto max-w-7xl px-4 sm:px-5">
               <SectionHeading
                 eyebrow="Акции"
-                title="Выгодные предложения"
-                subtitle="Актуальные скидки и бонусы для клиентов студии"
+                title={text("promotions.title", "Выгодные предложения")}
+                subtitle={text("promotions.subtitle", "Актуальные скидки и бонусы для клиентов студии")}
               />
               <div className="mt-8 grid gap-4 sm:mt-12 md:grid-cols-3">
                 {promotions.map((promo) => (
@@ -177,30 +243,14 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-5">
             <SectionHeading
               eyebrow="Почему «Омут»"
-              title={content["about.title"] ?? "Забота, которой доверяют"}
-              subtitle={
-                content["about.text"] ??
-                "Мы относимся к каждому автомобилю как к своему: безопасные технологии, премиальные материалы и контроль качества."
-              }
+              title={text("about.title", "Забота, которой доверяют")}
+              subtitle={text(
+                "about.text",
+                "Мы относимся к каждому автомобилю как к своему: безопасные технологии, премиальные материалы и контроль качества.",
+              )}
             />
             <div className="mt-8 grid gap-4 sm:mt-12 md:grid-cols-3 md:gap-5">
-              {[
-                {
-                  icon: ShieldCheck,
-                  title: "Прозрачные цены",
-                  text: "Стоимость согласуем до начала работ. Никаких сюрпризов на выдаче.",
-                },
-                {
-                  icon: Gauge,
-                  title: "Личный кабинет",
-                  text: "Вся история обращений, выполненные услуги и суммы — онлайн, в любой момент.",
-                },
-                {
-                  icon: Sparkles,
-                  title: "Фото- и видеоотчёт",
-                  text: "Показываем результат до и после. Гарантия на покрытия.",
-                },
-              ].map((f, i) => (
+              {aboutFeatures.map((f, i) => (
                 <Reveal key={f.title} delay={i * 80}>
                   <div className="h-full rounded-2xl border border-line bg-surface/60 p-5 sm:p-7">
                     <div className="grid h-12 w-12 place-items-center rounded-xl bg-aqua/10">
@@ -220,15 +270,10 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-5">
             <SectionHeading
               eyebrow="Как мы работаем"
-              title="Четыре простых шага"
+              title={text("process.title", "Четыре простых шага")}
             />
             <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 md:grid-cols-4 md:gap-5">
-              {[
-                { n: "01", t: "Заявка", d: "Записываетесь онлайн или присылаете фото в мессенджер." },
-                { n: "02", t: "Осмотр и расчёт", d: "Согласуем услуги, срок и точную стоимость." },
-                { n: "03", t: "Работа", d: "Выполняем по технологии, с контролем качества." },
-                { n: "04", t: "Выдача", d: "Показываем результат, фиксируем в вашем кабинете." },
-              ].map((s, i) => (
+              {processSteps.map((s, i) => (
                 <Reveal key={s.n} delay={i * 70}>
                   <div className="relative h-full rounded-2xl border border-line bg-surface/40 p-6">
                     <div className="text-3xl font-bold text-aqua/30">{s.n}</div>
@@ -244,7 +289,7 @@ export default async function HomePage() {
         {/* GALLERY */}
         <section id="gallery" className="border-y border-line bg-abyss-2 py-12 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-5">
-            <SectionHeading eyebrow="Работы" title="Результат, который видно" />
+            <SectionHeading eyebrow="Работы" title={text("gallery.title", "Результат, который видно")} />
             <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
               {(gallery.length > 0
                 ? gallery.map((g) => ({
@@ -296,7 +341,7 @@ export default async function HomePage() {
         {reviews.length > 0 && (
           <section id="reviews" className="py-12 sm:py-16 lg:py-20">
             <div className="mx-auto max-w-7xl px-4 sm:px-5">
-              <SectionHeading eyebrow="Отзывы" title="Нам доверяют автомобили" />
+              <SectionHeading eyebrow="Отзывы" title={text("reviews.title", "Нам доверяют автомобили")} />
               <div className="mt-8 grid gap-4 sm:mt-12 md:grid-cols-3 md:gap-5">
                 {reviews.map((r, i) => (
                   <Reveal key={r.id} delay={(i % 3) * 80}>
@@ -328,13 +373,13 @@ export default async function HomePage() {
               <div className="mt-8 space-y-4 text-mist">
                 <p className="flex items-center gap-3">
                   <MapPin className="h-5 w-5 text-aqua" />
-                  {content["contacts.address"] ?? BUSINESS.addressFull}
+                  {text("contacts.address", BUSINESS.addressFull)}
                 </p>
                 <p className="flex items-center gap-3">
                   <Clock className="h-5 w-5 text-aqua" />
-                  {content["contacts.hours"] ?? BUSINESS.hours}
+                  {text("contacts.hours", BUSINESS.hours)}
                 </p>
-                <p className="text-sm text-mute">{BUSINESS.landmark}</p>
+                <p className="text-sm text-mute">{text("contacts.landmark", BUSINESS.landmark)}</p>
               </div>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <ButtonLink href={BUSINESS.phoneHref} variant="outline" className="w-full sm:w-auto">
@@ -354,7 +399,7 @@ export default async function HomePage() {
                 className="h-72 w-full grayscale sm:h-80"
                 loading="lazy"
                 src={`https://yandex.ru/map-widget/v1/?text=${encodeURIComponent(
-                  BUSINESS.addressFull,
+                  text("contacts.address", BUSINESS.addressFull),
                 )}&z=16`}
               />
             </div>
@@ -367,11 +412,13 @@ export default async function HomePage() {
             <div className="relative overflow-hidden rounded-3xl border border-aqua/20 bg-gradient-to-br from-surface to-abyss-2 p-6 text-center sm:p-10 lg:p-16">
               <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-aqua/10 blur-3xl" />
               <h2 className="text-2xl font-semibold sm:text-4xl">
-                Готовы вернуть авто глубину и блеск?
+                {text("cta.title", "Готовы вернуть авто глубину и блеск?")}
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-mist">
-                Запишитесь онлайн — подтвердим время и рассчитаем стоимость. История
-                всех работ будет в вашем личном кабинете.
+                {text(
+                  "cta.text",
+                  "Запишитесь онлайн — подтвердим время и рассчитаем стоимость. История всех работ будет в вашем личном кабинете.",
+                )}
               </p>
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap">
                 <ButtonLink href="/book" size="lg" className="w-full sm:w-auto">
@@ -382,7 +429,7 @@ export default async function HomePage() {
                 </ButtonLink>
               </div>
               <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-mute">
-                {["Прозрачные цены", "Гарантия на покрытия", "Фотоотчёт"].map((t) => (
+                {ctaTrust.map((t) => (
                   <span key={t} className="flex items-center gap-1.5">
                     <CheckCircle2 className="h-4 w-4 text-aqua" /> {t}
                   </span>

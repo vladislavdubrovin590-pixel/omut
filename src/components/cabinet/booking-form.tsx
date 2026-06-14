@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AlertModal } from "@/components/ui/alert-modal";
 import { CarCatalogFields } from "@/components/cars/car-catalog-fields";
 import { createBooking } from "@/lib/actions/booking";
-import { formatRub, BODY_CLASS_LABELS } from "@/lib/utils";
+import { applyPercentDiscount, discountAmount, formatRub, BODY_CLASS_LABELS } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 type ServiceOpt = {
@@ -39,10 +39,12 @@ export function BookingForm({
   services,
   cars,
   initialServiceSlug,
+  discountPercent = 0,
 }: {
   services: ServiceOpt[];
   cars: CarOpt[];
   initialServiceSlug?: string;
+  discountPercent?: number;
 }) {
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(
@@ -76,12 +78,20 @@ export function BookingForm({
     return [...m.entries()];
   }, [services]);
 
-  const total = useMemo(
+  const baseTotal = useMemo(
     () =>
       services
         .filter((s) => selected.has(s.id))
         .reduce((sum, s) => sum + s.basePrice, 0),
     [services, selected],
+  );
+  const total = useMemo(
+    () => applyPercentDiscount(baseTotal, discountPercent),
+    [baseTotal, discountPercent],
+  );
+  const savedAmount = useMemo(
+    () => discountAmount(baseTotal, discountPercent),
+    [baseTotal, discountPercent],
   );
 
   function toggle(id: string) {
@@ -145,6 +155,12 @@ export function BookingForm({
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">1. Выберите услуги</h2>
+        {discountPercent > 0 && (
+          <div className="mb-4 rounded-2xl border border-aqua/25 bg-aqua/10 p-4 text-sm text-mist">
+            <span className="font-semibold text-aqua">Ваша персональная скидка {discountPercent}%</span>
+            {" "}применится автоматически к итоговой стоимости записи.
+          </div>
+        )}
         <div className="space-y-5">
           {grouped.map(([cat, list]) => (
             <div key={cat}>
@@ -279,6 +295,11 @@ export function BookingForm({
         <div>
           <span className="text-xs text-mute">Предварительная стоимость</span>
           <div className="text-xl font-semibold text-aqua">{formatRub(total)}</div>
+          {discountPercent > 0 && baseTotal > 0 && (
+            <div className="mt-1 text-xs text-mute">
+              До скидки {formatRub(baseTotal)} · экономия {formatRub(savedAmount)}
+            </div>
+          )}
         </div>
         <Button type="submit" size="lg" disabled={busy} className="w-full sm:w-auto">
           {busy && <Loader2 className="h-4 w-4 animate-spin" />}

@@ -25,7 +25,13 @@ import {
   searchClients,
   type VisitItemInput,
 } from "@/lib/actions/worker";
-import { formatRub, formatDate, BODY_CLASS_LABELS, BOOKING_STATUS_LABELS } from "@/lib/utils";
+import {
+  applyPercentDiscount,
+  formatRub,
+  formatDate,
+  BODY_CLASS_LABELS,
+  BOOKING_STATUS_LABELS,
+} from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 type BookingDTO = {
@@ -34,6 +40,7 @@ type BookingDTO = {
   status: string;
   clientId: string;
   clientName: string;
+  clientDiscountPercent: number;
   carLabel: string | null;
   services: { serviceId: string; title: string; price: number }[];
   estimatedTotal: number;
@@ -47,6 +54,7 @@ type ClientResult = {
   name: string | null;
   phone: string | null;
   email: string | null;
+  bonusDiscountPercent?: number;
 };
 
 type Item = VisitItemInput & { key: string };
@@ -64,7 +72,7 @@ export function WorkerConsole({
   const [activeTab, setActiveTab] = useState<"today" | "new">(initialTab);
 
   // visit form state
-  const [client, setClient] = useState<{ id: string; name: string } | null>(null);
+  const [client, setClient] = useState<{ id: string; name: string; bonusDiscountPercent: number } | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [make, setMake] = useState("");
@@ -84,7 +92,11 @@ export function WorkerConsole({
   const total = overrideTotal !== "" ? Number(overrideTotal) || 0 : computedTotal;
 
   function startVisitFromBooking(b: BookingDTO) {
-    setClient({ id: b.clientId, name: b.clientName });
+    setClient({
+      id: b.clientId,
+      name: b.clientName,
+      bonusDiscountPercent: b.clientDiscountPercent,
+    });
     setBookingId(b.id);
     setItems(
       b.services.map((s, idx) => ({
@@ -124,9 +136,10 @@ export function WorkerConsole({
   function addService(id: string) {
     const svc = services.find((s) => s.id === id);
     if (!svc) return;
+    const price = applyPercentDiscount(svc.basePrice, client?.bonusDiscountPercent ?? 0);
     setItems((prev) => [
       ...prev,
-      { key: `s${Date.now()}`, serviceId: svc.id, title: svc.title, price: svc.basePrice, qty: 1 },
+      { key: `s${Date.now()}`, serviceId: svc.id, title: svc.title, price, qty: 1 },
     ]);
   }
 
@@ -313,8 +326,8 @@ function ArrivalButton({ bookingId }: { bookingId: string }) {
 }
 
 type VisitFormProps = {
-  client: { id: string; name: string } | null;
-  setClient: (c: { id: string; name: string } | null) => void;
+  client: { id: string; name: string; bonusDiscountPercent: number } | null;
+  setClient: (c: { id: string; name: string; bonusDiscountPercent: number } | null) => void;
   items: Item[];
   services: ServiceDTO[];
   addService: (id: string) => void;
@@ -345,7 +358,14 @@ function VisitForm(p: VisitFormProps) {
         <h2 className="mb-3 text-lg font-semibold">Клиент</h2>
         {p.client ? (
           <div className="flex items-center justify-between rounded-xl border border-aqua/40 bg-aqua/10 px-4 py-3">
-            <span className="text-foam">{p.client.name}</span>
+            <span className="text-foam">
+              {p.client.name}
+              {p.client.bonusDiscountPercent > 0 ? (
+                <span className="ml-2 text-xs text-aqua">
+                  скидка {p.client.bonusDiscountPercent}%
+                </span>
+              ) : null}
+            </span>
             <button
               onClick={() => p.setClient(null)}
               className="text-xs text-mist hover:text-foam"
@@ -354,7 +374,24 @@ function VisitForm(p: VisitFormProps) {
             </button>
           </div>
         ) : (
-          <ClientPicker onPick={(c) => p.setClient({ id: c.id, name: c.name || c.phone || "Клиент" })} />
+          <ClientPicker
+            onPick={(c) => {
+              const discountPercent = c.bonusDiscountPercent ?? 0;
+              p.items.forEach((item) => {
+                const service = p.services.find((s) => s.id === item.serviceId);
+                if (service) {
+                  p.updateItem(item.key, {
+                    price: applyPercentDiscount(service.basePrice, discountPercent),
+                  });
+                }
+              });
+              p.setClient({
+                id: c.id,
+                name: c.name || c.phone || "Клиент",
+                bonusDiscountPercent: discountPercent,
+              });
+            }}
+          />
         )}
       </Card>
 
