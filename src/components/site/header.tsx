@@ -43,8 +43,9 @@ export function SiteHeader() {
         scrolled ? "glass border-b border-line/60" : "bg-transparent",
       )}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
-        <BrandLogo size="md" />
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-5">
+        <BrandLogo size="sm" className="lg:hidden" />
+        <BrandLogo size="md" className="hidden lg:block" />
 
         <nav className="hidden items-center gap-7 lg:flex">
           {NAV.map((item) => (
@@ -72,7 +73,7 @@ export function SiteHeader() {
         </div>
 
         <button
-          className="grid h-10 w-10 place-items-center rounded-lg text-foam lg:hidden"
+          className="grid h-11 w-11 place-items-center rounded-xl border border-line/60 bg-surface/40 text-foam lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Меню"
         >
@@ -82,7 +83,7 @@ export function SiteHeader() {
 
       {open && (
         <div className="glass border-t border-line/60 lg:hidden">
-          <div className="flex flex-col gap-1 px-5 py-4">
+          <div className="flex flex-col gap-1 px-4 py-4 sm:px-5">
             {NAV.map((item) => (
               <a
                 key={item.href}

@@ -72,7 +72,7 @@ function LoginInner() {
   }
 
   return (
-    <main className="bg-abyss-glow flex min-h-screen items-center justify-center px-5 py-16">
+    <main className="bg-abyss-glow flex min-h-screen items-center justify-center px-4 py-8 sm:px-5 sm:py-16">
       <div className="w-full max-w-md">
         <Link
           href="/"
@@ -81,7 +81,7 @@ function LoginInner() {
           <ArrowLeft className="h-4 w-4" /> На главную
         </Link>
 
-        <div className="glass rounded-3xl p-8">
+        <div className="glass rounded-3xl p-5 sm:p-8">
           <div className="text-center">
             <BrandLogo size="md" className="mx-auto w-fit" />
             <h1 className="mt-8 text-2xl font-semibold">

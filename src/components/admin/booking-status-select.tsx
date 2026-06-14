@@ -36,12 +36,12 @@ export function BookingStatusSelect({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full items-center gap-2 sm:w-auto">
       {pending && <Loader2 className="h-4 w-4 animate-spin text-mute" />}
       <select
         value={value}
         onChange={(e) => change(e.target.value)}
-        className="h-9 rounded-lg border border-line bg-surface px-3 text-xs text-foam outline-none focus:border-aqua/50"
+        className="h-10 w-full rounded-lg border border-line bg-surface px-3 text-xs text-foam outline-none focus:border-aqua/50 sm:h-9 sm:w-auto"
       >
         {STATUSES.map((s) => (
           <option key={s} value={s} className="bg-surface">

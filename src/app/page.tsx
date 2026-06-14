@@ -38,33 +38,33 @@ export default async function HomePage() {
       <SiteHeader />
       <main className="flex-1">
         {/* HERO */}
-        <section className="bg-abyss-glow relative overflow-hidden pt-28 pb-20">
-          <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-aqua/10 blur-3xl" />
-          <div className="mx-auto max-w-7xl px-5">
+        <section className="bg-abyss-glow relative overflow-hidden pb-12 pt-24 sm:pb-16 sm:pt-28 lg:pb-20">
+          <div className="pointer-events-none absolute -top-40 left-1/2 h-72 w-[22rem] -translate-x-1/2 rounded-full bg-aqua/10 blur-3xl sm:h-96 sm:w-[42rem]" />
+          <div className="mx-auto max-w-7xl px-4 sm:px-5">
             <div className="mx-auto max-w-3xl text-center">
               <Reveal>
-                <span className="inline-flex items-center gap-2 rounded-full border border-aqua/30 bg-aqua/5 px-4 py-1.5 text-xs text-aqua">
+                <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-aqua/30 bg-aqua/5 px-3 py-1.5 text-left text-xs text-aqua sm:px-4">
                   <Sparkles className="h-3.5 w-3.5" />
                   Детейлинг в центре Самары · {BUSINESS.address}
                 </span>
               </Reveal>
               <Reveal delay={80}>
-                <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
+                <h1 className="mt-5 text-3xl font-semibold leading-tight tracking-tight sm:mt-6 sm:text-5xl lg:text-6xl">
                   <span className="text-gradient">{heroTitle}</span>
                 </h1>
               </Reveal>
               <Reveal delay={160}>
-                <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-mist">
+                <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-mist sm:mt-6 sm:text-lg">
                   {heroSubtitle}
                 </p>
               </Reveal>
               <Reveal delay={240}>
-                <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-                  <ButtonLink href="/book" size="lg">
+                <div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:mt-9 sm:flex-row sm:items-center">
+                  <ButtonLink href="/book" size="lg" className="w-full sm:w-auto">
                     <CalendarCheck className="h-5 w-5" />
                     Записаться онлайн
                   </ButtonLink>
-                  <ButtonLink href="/#services" size="lg" variant="outline">
+                  <ButtonLink href="/#services" size="lg" variant="outline" className="w-full sm:w-auto">
                     Услуги и цены
                   </ButtonLink>
                 </div>
@@ -72,14 +72,14 @@ export default async function HomePage() {
             </div>
 
             <Reveal delay={320}>
-              <div className="mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
+              <div className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-3 sm:mt-16 sm:grid-cols-4 sm:gap-4">
                 {[
                   { icon: ShieldCheck, value: "12 мес", label: "гарантия на керамику" },
                   { icon: Droplets, value: "pH-нейтр.", label: "безопасная химия" },
                   { icon: CarFront, value: "Любой класс", label: "от седана до SUV" },
                   { icon: Clock, value: "1 день", label: "большинство работ" },
                 ].map((s) => (
-                  <div key={s.label} className="glass rounded-2xl p-5 text-center">
+                  <div key={s.label} className="glass rounded-2xl p-4 text-center sm:p-5">
                     <s.icon className="mx-auto h-6 w-6 text-aqua" />
                     <div className="mt-2 text-lg font-semibold text-foam">{s.value}</div>
                     <div className="text-xs text-mute">{s.label}</div>
@@ -91,17 +91,17 @@ export default async function HomePage() {
         </section>
 
         {/* SERVICES */}
-        <section id="services" className="py-20">
-          <div className="mx-auto max-w-7xl px-5">
+        <section id="services" className="py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-5">
             <SectionHeading
               eyebrow="Услуги"
               title="Полный уход за автомобилем"
               subtitle="Прозрачные цены «от» для класса B. Точную стоимость рассчитаем по фото или на осмотре."
             />
-            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
               {services.map((s, i) => (
                 <Reveal key={s.id} delay={(i % 3) * 80}>
-                  <div className="group relative h-full rounded-2xl border border-line bg-surface/60 p-6 transition-all hover:border-aqua/40 hover:bg-surface">
+                  <div className="group relative h-full rounded-2xl border border-line bg-surface/60 p-4 transition-all hover:border-aqua/40 hover:bg-surface sm:p-6">
                     {s.popular && (
                       <span className="absolute right-5 top-5 rounded-full bg-aqua/15 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-aqua">
                         Хит
@@ -112,7 +112,7 @@ export default async function HomePage() {
                     </div>
                     <h3 className="mt-2 text-xl font-semibold text-foam">{s.title}</h3>
                     <p className="mt-2 min-h-[3rem] text-sm text-mist">{s.shortDesc}</p>
-                    <div className="mt-5 flex items-end justify-between border-t border-line pt-4">
+                    <div className="mt-5 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-end sm:justify-between">
                       <div>
                         <div className="text-xs text-mute">от</div>
                         <div className="text-2xl font-semibold text-foam">
@@ -135,8 +135,8 @@ export default async function HomePage() {
         </section>
 
         {/* WHY */}
-        <section id="why" className="border-y border-line bg-abyss-2 py-20">
-          <div className="mx-auto max-w-7xl px-5">
+        <section id="why" className="border-y border-line bg-abyss-2 py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-5">
             <SectionHeading
               eyebrow="Почему «Омут»"
               title={content["about.title"] ?? "Забота, которой доверяют"}
@@ -145,7 +145,7 @@ export default async function HomePage() {
                 "Мы относимся к каждому автомобилю как к своему: безопасные технологии, премиальные материалы и контроль качества."
               }
             />
-            <div className="mt-12 grid gap-5 md:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:mt-12 md:grid-cols-3 md:gap-5">
               {[
                 {
                   icon: ShieldCheck,
@@ -164,7 +164,7 @@ export default async function HomePage() {
                 },
               ].map((f, i) => (
                 <Reveal key={f.title} delay={i * 80}>
-                  <div className="h-full rounded-2xl border border-line bg-surface/60 p-7">
+                  <div className="h-full rounded-2xl border border-line bg-surface/60 p-5 sm:p-7">
                     <div className="grid h-12 w-12 place-items-center rounded-xl bg-aqua/10">
                       <f.icon className="h-6 w-6 text-aqua" />
                     </div>
@@ -178,13 +178,13 @@ export default async function HomePage() {
         </section>
 
         {/* PROCESS */}
-        <section id="process" className="py-20">
-          <div className="mx-auto max-w-7xl px-5">
+        <section id="process" className="py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-5">
             <SectionHeading
               eyebrow="Как мы работаем"
               title="Четыре простых шага"
             />
-            <div className="mt-12 grid gap-5 md:grid-cols-4">
+            <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 md:grid-cols-4 md:gap-5">
               {[
                 { n: "01", t: "Заявка", d: "Записываетесь онлайн или присылаете фото в мессенджер." },
                 { n: "02", t: "Осмотр и расчёт", d: "Согласуем услуги, срок и точную стоимость." },
@@ -204,10 +204,10 @@ export default async function HomePage() {
         </section>
 
         {/* GALLERY */}
-        <section id="gallery" className="border-y border-line bg-abyss-2 py-20">
-          <div className="mx-auto max-w-7xl px-5">
+        <section id="gallery" className="border-y border-line bg-abyss-2 py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-5">
             <SectionHeading eyebrow="Работы" title="Результат, который видно" />
-            <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
               {(gallery.length > 0
                 ? gallery.map((g) => ({ id: g.id, url: g.url, caption: g.caption }))
                 : Array.from({ length: 8 }).map((_, i) => ({
@@ -240,13 +240,13 @@ export default async function HomePage() {
 
         {/* REVIEWS */}
         {reviews.length > 0 && (
-          <section id="reviews" className="py-20">
-            <div className="mx-auto max-w-7xl px-5">
+          <section id="reviews" className="py-12 sm:py-16 lg:py-20">
+            <div className="mx-auto max-w-7xl px-4 sm:px-5">
               <SectionHeading eyebrow="Отзывы" title="Нам доверяют автомобили" />
-              <div className="mt-12 grid gap-5 md:grid-cols-3">
+              <div className="mt-8 grid gap-4 sm:mt-12 md:grid-cols-3 md:gap-5">
                 {reviews.map((r, i) => (
                   <Reveal key={r.id} delay={(i % 3) * 80}>
-                    <div className="h-full rounded-2xl border border-line bg-surface/60 p-6">
+                    <div className="h-full rounded-2xl border border-line bg-surface/60 p-5 sm:p-6">
                       <div className="flex gap-0.5 text-aqua">
                         {Array.from({ length: r.rating }).map((_, k) => (
                           <Star key={k} className="h-4 w-4 fill-aqua" />
@@ -263,8 +263,8 @@ export default async function HomePage() {
         )}
 
         {/* CONTACTS */}
-        <section id="contacts" className="border-t border-line bg-abyss-2 py-20">
-          <div className="mx-auto grid max-w-7xl gap-10 px-5 lg:grid-cols-2">
+        <section id="contacts" className="border-t border-line bg-abyss-2 py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-5 lg:grid-cols-2 lg:gap-10">
             <div>
               <SectionHeading
                 align="left"
@@ -282,14 +282,14 @@ export default async function HomePage() {
                 </p>
                 <p className="text-sm text-mute">{BUSINESS.landmark}</p>
               </div>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <ButtonLink href={BUSINESS.phoneHref} variant="outline">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <ButtonLink href={BUSINESS.phoneHref} variant="outline" className="w-full sm:w-auto">
                   <Phone className="h-4 w-4" /> Позвонить
                 </ButtonLink>
-                <ButtonLink href={BUSINESS.whatsapp} variant="outline">
+                <ButtonLink href={BUSINESS.whatsapp} variant="outline" className="w-full sm:w-auto">
                   <MessageCircle className="h-4 w-4" /> WhatsApp
                 </ButtonLink>
-                <ButtonLink href="/book">
+                <ButtonLink href="/book" className="w-full sm:w-auto">
                   <CalendarCheck className="h-4 w-4" /> Записаться
                 </ButtonLink>
               </div>
@@ -297,7 +297,7 @@ export default async function HomePage() {
             <div className="overflow-hidden rounded-2xl border border-line">
               <iframe
                 title="Карта"
-                className="h-80 w-full grayscale"
+                className="h-72 w-full grayscale sm:h-80"
                 loading="lazy"
                 src={`https://yandex.ru/map-widget/v1/?text=${encodeURIComponent(
                   BUSINESS.addressFull,
@@ -308,22 +308,22 @@ export default async function HomePage() {
         </section>
 
         {/* CTA */}
-        <section className="py-20">
-          <div className="mx-auto max-w-7xl px-5">
-            <div className="relative overflow-hidden rounded-3xl border border-aqua/20 bg-gradient-to-br from-surface to-abyss-2 p-10 text-center sm:p-16">
+        <section className="py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-5">
+            <div className="relative overflow-hidden rounded-3xl border border-aqua/20 bg-gradient-to-br from-surface to-abyss-2 p-6 text-center sm:p-10 lg:p-16">
               <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-aqua/10 blur-3xl" />
-              <h2 className="text-3xl font-semibold sm:text-4xl">
+              <h2 className="text-2xl font-semibold sm:text-4xl">
                 Готовы вернуть авто глубину и блеск?
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-mist">
                 Запишитесь онлайн — подтвердим время и рассчитаем стоимость. История
                 всех работ будет в вашем личном кабинете.
               </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <ButtonLink href="/book" size="lg">
+              <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap">
+                <ButtonLink href="/book" size="lg" className="w-full sm:w-auto">
                   <CalendarCheck className="h-5 w-5" /> Записаться онлайн
                 </ButtonLink>
-                <ButtonLink href="/login" size="lg" variant="outline">
+                <ButtonLink href="/login" size="lg" variant="outline" className="w-full sm:w-auto">
                   Личный кабинет
                 </ButtonLink>
               </div>
@@ -359,7 +359,7 @@ function SectionHeading({
       <span className="text-xs font-medium uppercase tracking-[0.25em] text-aqua">
         {eyebrow}
       </span>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+      <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
         {title}
       </h2>
       {subtitle && <p className="mt-4 text-mist">{subtitle}</p>}

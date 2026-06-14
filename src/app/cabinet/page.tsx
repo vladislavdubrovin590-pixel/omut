@@ -51,7 +51,7 @@ export default async function CabinetHome() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
         <StatCard
           label="Активных записей"
           value={upcoming.length}
@@ -90,9 +90,9 @@ export default async function CabinetHome() {
         ) : (
           <div className="space-y-3">
             {upcoming.map((b) => (
-              <Card key={b.id} className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-3">
+              <Card key={b.id} className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-3">
                     <span className="font-medium text-foam">
                       {formatDate(b.scheduledAt, true)}
                     </span>
@@ -108,7 +108,7 @@ export default async function CabinetHome() {
                     </p>
                   )}
                 </div>
-                <div className="text-right">
+                <div className="sm:text-right">
                   <div className="text-xs text-mute">оценка</div>
                   <div className="font-semibold text-aqua">{formatRub(b.estimatedTotal)}</div>
                 </div>
@@ -130,8 +130,8 @@ export default async function CabinetHome() {
         ) : (
           <div className="space-y-3">
             {visits.map((v) => (
-              <Card key={v.id} className="flex flex-wrap items-center justify-between gap-3">
-                <div>
+              <Card key={v.id} className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
+                <div className="min-w-0">
                   <span className="font-medium text-foam">
                     {v.completedAt ? formatDate(v.completedAt) : formatDate(v.arrivedAt)}
                   </span>

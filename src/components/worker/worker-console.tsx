@@ -178,12 +178,12 @@ export function WorkerConsole({
 
   return (
     <div>
-      <div className="mb-6 inline-flex rounded-full border border-line p-1 text-sm">
+      <div className="mb-6 grid w-full grid-cols-2 rounded-full border border-line p-1 text-sm sm:inline-grid sm:w-auto">
         <Link
           href="/worker?tab=today"
           onClick={() => setActiveTab("today")}
           className={cn(
-            "rounded-full px-5 py-2 transition-colors",
+            "rounded-full px-3 py-2 text-center transition-colors sm:px-5",
             activeTab === "today" ? "bg-aqua text-abyss font-medium" : "text-mist",
           )}
         >
@@ -193,7 +193,7 @@ export function WorkerConsole({
           href="/worker?tab=new"
           onClick={() => setActiveTab("new")}
           className={cn(
-            "rounded-full px-5 py-2 transition-colors",
+            "rounded-full px-3 py-2 text-center transition-colors sm:px-5",
             activeTab === "new" ? "bg-aqua text-abyss font-medium" : "text-mist",
           )}
         >
@@ -261,8 +261,8 @@ function TodayList({
   return (
     <div className="space-y-3">
       {bookings.map((b) => (
-        <Card key={b.id} className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+        <Card key={b.id} className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-start">
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
               <span className="font-medium text-foam">{formatDate(b.scheduledAt, true)}</span>
               <StatusBadge status={b.status} label={BOOKING_STATUS_LABELS[b.status]} />
@@ -274,11 +274,11 @@ function TodayList({
             {b.carLabel && <p className="mt-0.5 text-xs text-mute">{b.carLabel}</p>}
             {b.note && <p className="mt-1 text-xs text-mute">«{b.note}»</p>}
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col gap-2 sm:items-end">
             <div className="font-semibold text-aqua">{formatRub(b.estimatedTotal)}</div>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:flex">
               {b.status !== "IN_PROGRESS" && <ArrivalButton bookingId={b.id} />}
-              <Button size="sm" onClick={() => onStartVisit(b)}>
+              <Button size="sm" onClick={() => onStartVisit(b)} className="w-full sm:w-auto">
                 Оформить
               </Button>
             </div>
@@ -296,6 +296,7 @@ function ArrivalButton({ bookingId }: { bookingId: string }) {
     <Button
       size="sm"
       variant="outline"
+      className="w-full sm:w-auto"
       disabled={pending}
       onClick={() =>
         start(async () => {
@@ -363,7 +364,7 @@ function VisitForm(p: VisitFormProps) {
           <h2 className="text-lg font-semibold">Выполненные услуги</h2>
         </div>
 
-        <div className="mb-3 flex flex-wrap gap-2">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <select
             onChange={(e) => {
               if (e.target.value) {
@@ -372,7 +373,7 @@ function VisitForm(p: VisitFormProps) {
               }
             }}
             defaultValue=""
-            className="h-10 rounded-xl border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50"
+            className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50 sm:w-auto"
           >
             <option value="" className="bg-surface">
               + Добавить услугу из каталога
@@ -383,7 +384,7 @@ function VisitForm(p: VisitFormProps) {
               </option>
             ))}
           </select>
-          <Button size="sm" variant="subtle" onClick={p.addCustom}>
+          <Button size="sm" variant="subtle" onClick={p.addCustom} className="w-full sm:w-auto">
             <Plus className="h-4 w-4" /> Своя позиция
           </Button>
         </div>
@@ -395,20 +396,20 @@ function VisitForm(p: VisitFormProps) {
             {p.items.map((it) => (
               <div
                 key={it.key}
-                className="flex flex-wrap items-center gap-2 rounded-xl border border-line bg-surface/60 p-2"
+                className="grid gap-2 rounded-xl border border-line bg-surface/60 p-2 sm:grid-cols-[1fr_4rem_7rem_auto] sm:items-center"
               >
                 <input
                   value={it.title}
                   onChange={(e) => p.updateItem(it.key, { title: e.target.value })}
                   placeholder="Название услуги"
-                  className="h-9 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50"
+                  className="h-10 min-w-0 rounded-lg border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50"
                 />
                 <input
                   type="number"
                   value={it.qty}
                   min={1}
                   onChange={(e) => p.updateItem(it.key, { qty: Number(e.target.value) })}
-                  className="h-9 w-16 rounded-lg border border-line bg-surface px-2 text-sm text-foam outline-none focus:border-aqua/50"
+                  className="h-10 w-full rounded-lg border border-line bg-surface px-2 text-sm text-foam outline-none focus:border-aqua/50"
                   title="Количество"
                 />
                 <input
@@ -416,12 +417,12 @@ function VisitForm(p: VisitFormProps) {
                   value={it.price}
                   min={0}
                   onChange={(e) => p.updateItem(it.key, { price: Number(e.target.value) })}
-                  className="h-9 w-28 rounded-lg border border-line bg-surface px-2 text-sm text-foam outline-none focus:border-aqua/50"
+                  className="h-10 w-full rounded-lg border border-line bg-surface px-2 text-sm text-foam outline-none focus:border-aqua/50"
                   title="Цена, ₽"
                 />
                 <button
                   onClick={() => p.removeItem(it.key)}
-                  className="grid h-9 w-9 place-items-center rounded-lg text-mute hover:bg-red-500/10 hover:text-red-300"
+                  className="grid h-10 w-full place-items-center rounded-lg text-mute hover:bg-red-500/10 hover:text-red-300 sm:w-10"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -479,8 +480,8 @@ function VisitForm(p: VisitFormProps) {
         <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{p.error}</p>
       )}
 
-      <div className="sticky bottom-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-deep/90 p-4 backdrop-blur">
-        <div className="flex items-center gap-3">
+      <div className="sticky bottom-24 flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-line bg-deep/95 p-4 backdrop-blur sm:bottom-4 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div>
             <span className="text-xs text-mute">Итоговая сумма</span>
             <div className="text-xl font-semibold text-aqua">{formatRub(p.total)}</div>
@@ -490,11 +491,11 @@ function VisitForm(p: VisitFormProps) {
             value={p.overrideTotal}
             onChange={(e) => p.setOverrideTotal(e.target.value)}
             placeholder={`Изм. (${p.computedTotal})`}
-            className="h-10 w-32 rounded-lg border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50"
+            className="h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50 sm:w-32"
             title="Переопределить итог"
           />
         </div>
-        <Button size="lg" onClick={p.onSave} disabled={p.busy}>
+        <Button size="lg" onClick={p.onSave} disabled={p.busy} className="w-full sm:w-auto">
           {p.busy && <Loader2 className="h-4 w-4 animate-spin" />}
           Сохранить визит
         </Button>

@@ -87,8 +87,8 @@ export function PushSender({ configured }: { configured: boolean }) {
           </select>
         </div>
       </div>
-      <div className="mt-4 flex items-center gap-3">
-        <Button onClick={send} disabled={busy}>
+      <div className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+        <Button onClick={send} disabled={busy} className="w-full sm:w-auto">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           Отправить
         </Button>

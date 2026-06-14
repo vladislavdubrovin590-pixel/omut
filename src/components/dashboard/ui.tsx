@@ -10,9 +10,9 @@ export function PageHeading({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold text-foam">{title}</h1>
+    <div className="mb-5 flex flex-col items-start justify-between gap-3 sm:mb-6 sm:flex-row sm:items-end sm:gap-4">
+      <div className="min-w-0">
+        <h1 className="text-xl font-semibold text-foam sm:text-2xl">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-mute">{subtitle}</p>}
       </div>
       {action}
@@ -30,7 +30,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-line bg-surface/60 p-5",
+        "rounded-2xl border border-line bg-surface/60 p-4 sm:p-5",
         className,
       )}
     >
@@ -51,14 +51,14 @@ export function StatCard({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-surface/60 p-5">
+    <div className="rounded-2xl border border-line bg-surface/60 p-4 sm:p-5">
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-wide text-mute">
           {label}
         </span>
         {icon && <span className="text-aqua">{icon}</span>}
       </div>
-      <div className="mt-2 text-2xl font-semibold text-foam">{value}</div>
+      <div className="mt-2 text-xl font-semibold text-foam sm:text-2xl">{value}</div>
       {hint && <div className="mt-1 text-xs text-mute">{hint}</div>}
     </div>
   );
@@ -102,7 +102,7 @@ export function EmptyState({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line bg-surface/30 p-10 text-center">
+    <div className="rounded-2xl border border-dashed border-line bg-surface/30 p-6 text-center sm:p-10">
       {icon && <div className="mx-auto mb-3 w-fit text-mute">{icon}</div>}
       <p className="text-foam">{title}</p>
       {hint && <p className="mt-1 text-sm text-mute">{hint}</p>}

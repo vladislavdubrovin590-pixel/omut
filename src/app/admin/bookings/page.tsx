@@ -88,10 +88,10 @@ function Section({
               {rows.map((b) => (
                 <Card
                   key={b.id}
-                  className={`flex flex-wrap items-center justify-between gap-4 ${muted ? "opacity-80" : ""}`}
+                  className={`flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center ${muted ? "opacity-80" : ""}`}
                 >
                   <div className="min-w-0">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <span className="font-medium text-foam">
                         {new Intl.DateTimeFormat("ru-RU", {
                           hour: "2-digit",
@@ -112,7 +112,7 @@ function Section({
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                     <span className="font-semibold text-aqua">{formatRub(b.estimatedTotal)}</span>
                     <BookingStatusSelect bookingId={b.id} status={b.status} />
                   </div>

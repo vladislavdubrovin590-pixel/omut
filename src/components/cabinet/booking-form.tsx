@@ -243,12 +243,12 @@ export function BookingForm({
         <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>
       )}
 
-      <div className="sticky bottom-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-deep/90 p-4 backdrop-blur">
+      <div className="sticky bottom-24 flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-line bg-deep/95 p-4 backdrop-blur sm:bottom-4 sm:flex-row sm:items-center sm:gap-4">
         <div>
           <span className="text-xs text-mute">Предварительная стоимость</span>
           <div className="text-xl font-semibold text-aqua">{formatRub(total)}</div>
         </div>
-        <Button type="submit" size="lg" disabled={busy}>
+        <Button type="submit" size="lg" disabled={busy} className="w-full sm:w-auto">
           {busy && <Loader2 className="h-4 w-4 animate-spin" />}
           Отправить заявку
         </Button>

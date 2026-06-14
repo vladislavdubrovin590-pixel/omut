@@ -19,7 +19,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
 
   return (
     <form
-      className="grid gap-3 rounded-2xl border border-line bg-white/[0.03] p-4 md:grid-cols-2"
+      className="grid gap-3 rounded-2xl border border-line bg-white/[0.03] p-3 sm:p-4 md:grid-cols-2"
       action={(formData) => {
         setMessage(null);
         startTransition(async () => {
@@ -95,9 +95,9 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
           className="min-h-20 w-full rounded-xl border border-line bg-abyss px-3 py-2 text-foam outline-none focus:border-aqua"
         />
       </label>
-      <div className="flex items-center gap-3 md:col-span-2">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center md:col-span-2">
         <button
-          className="rounded-xl bg-aqua px-4 py-2 text-sm font-semibold text-abyss disabled:opacity-60"
+          className="rounded-xl bg-aqua px-4 py-3 text-sm font-semibold text-abyss disabled:opacity-60 sm:py-2"
           disabled={pending}
         >
           {pending ? "Сохраняю..." : "Сохранить"}

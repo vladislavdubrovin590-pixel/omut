@@ -126,7 +126,7 @@ export default async function AdminClientCardPage({
                           {visit.worker?.name ? ` · ${visit.worker.name}` : ""}
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="md:text-right">
                         <StatusBadge status={visit.status} label={VISIT_STATUS_LABELS[visit.status]} />
                         <div className="mt-1 text-sm font-semibold text-teal">
                           {formatRub(visit.totalAmount)}
@@ -161,8 +161,8 @@ export default async function AdminClientCardPage({
               <div className="space-y-3">
                 {client.bookings.map((booking) => (
                   <div key={booking.id} className="rounded-xl border border-line bg-white/[0.02] p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
+                    <div className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-start">
+                      <div className="min-w-0">
                         <div className="font-medium text-foam">
                           {booking.services.map((item) => item.service.title).join(", ") || "Услуги"}
                         </div>

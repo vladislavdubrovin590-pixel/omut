@@ -69,7 +69,7 @@ export function Sidebar({
   }
 
   return (
-    <aside className="flex w-full flex-row gap-1 overflow-x-auto border-b border-line bg-abyss-2 p-3 lg:h-screen lg:w-64 lg:flex-col lg:gap-1 lg:overflow-y-auto lg:border-b-0 lg:border-r">
+    <aside className="fixed inset-x-0 bottom-0 z-50 flex w-full flex-row gap-1 overflow-x-auto border-t border-line bg-abyss-2/95 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:flex-col lg:gap-1 lg:overflow-y-auto lg:border-r lg:border-t-0 lg:p-3 lg:pb-3">
       <div className="hidden px-3 py-4 lg:block">
         <BrandLogo size="sm" />
         <p className="mt-3 text-xs uppercase tracking-wide text-mute">{title}</p>
@@ -88,7 +88,7 @@ export function Sidebar({
             key={item.href}
             href={item.href}
             className={cn(
-              "flex shrink-0 items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-colors",
+              "flex min-w-16 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 text-[11px] transition-colors lg:min-w-0 lg:flex-row lg:gap-3 lg:px-4 lg:py-2.5 lg:text-sm",
               active
                 ? "bg-aqua/15 text-aqua"
                 : "text-mist hover:bg-white/5 hover:text-foam",
@@ -112,9 +112,10 @@ export function Sidebar({
 
       <button
         onClick={handleLogout}
-        className="ml-auto flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm text-mist hover:text-red-300 lg:hidden"
+        className="ml-auto flex min-w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-[11px] text-mist hover:text-red-300 lg:hidden"
       >
         <LogOut className="h-4.5 w-4.5" />
+        <span>Выход</span>
       </button>
     </aside>
   );

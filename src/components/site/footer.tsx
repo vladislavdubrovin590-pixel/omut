@@ -6,7 +6,7 @@ import { BrandLogo } from "@/components/site/brand-logo";
 export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-abyss-2">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:grid-cols-3">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-5 sm:py-14 md:grid-cols-3">
         <div>
           <BrandLogo size="md" />
           <p className="mt-4 max-w-xs text-sm text-mute">
@@ -15,8 +15,8 @@ export function SiteFooter() {
         </div>
 
         <div className="space-y-3 text-sm text-mist">
-          <p className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-aqua" /> {BUSINESS.addressFull}
+          <p className="flex items-start gap-2">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-aqua" /> {BUSINESS.addressFull}
           </p>
           <p className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-aqua" /> {BUSINESS.hours}
@@ -39,7 +39,7 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="border-t border-line py-5 text-center text-xs text-mute">
+      <div className="border-t border-line px-4 py-5 pb-[calc(6rem+env(safe-area-inset-bottom))] text-center text-xs text-mute lg:pb-5">
         © {new Date().getFullYear()} {BUSINESS.fullName} · {BUSINESS.addressFull}
       </div>
     </footer>

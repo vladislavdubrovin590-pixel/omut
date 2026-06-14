@@ -66,9 +66,9 @@ export function ClientCardForm({ client }: { client: Client }) {
           placeholder="Предпочтения клиента, важные детали, ограничения, VIP/лояльность..."
         />
       </label>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <button
-          className="rounded-xl bg-aqua px-4 py-2 text-sm font-semibold text-abyss disabled:opacity-60"
+          className="rounded-xl bg-aqua px-4 py-3 text-sm font-semibold text-abyss disabled:opacity-60 sm:py-2"
           disabled={pending}
         >
           {pending ? "Сохраняю..." : "Сохранить карточку"}
