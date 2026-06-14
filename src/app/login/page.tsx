@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2, Lock, Phone } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { BrandLogo } from "@/components/site/brand-logo";
 import { Button } from "@/components/ui/button";
-import { formatPhoneInput } from "@/components/ui/phone-input";
+import { PhoneInput } from "@/components/ui/phone-input";
 
 export default function LoginPage() {
   return (
@@ -94,14 +94,18 @@ function LoginInner() {
           </div>
 
           <form onSubmit={handleLogin} className="mt-6 space-y-3">
-            <Field
-              icon={<Phone className="h-4 w-4" />}
-              type="tel"
-              placeholder="+7 900 123-45-67"
-              value={phone}
-              onChange={setPhone}
-              autoComplete="tel"
-            />
+            <div className="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 focus-within:border-aqua/50">
+              <span className="text-mute">
+                <Phone className="h-4 w-4" />
+              </span>
+              <PhoneInput
+                value={phone}
+                onChange={setPhone}
+                autoComplete="tel"
+                required
+                className="h-12 border-0 bg-transparent px-0 focus:border-transparent"
+              />
+            </div>
             <Field
               icon={<Lock className="h-4 w-4" />}
               type="password"
@@ -161,9 +165,7 @@ function Field({
         placeholder={placeholder}
         value={value}
         autoComplete={autoComplete}
-        onChange={(e) =>
-          onChange(type === "tel" ? formatPhoneInput(e.target.value) : e.target.value)
-        }
+        onChange={(e) => onChange(e.target.value)}
         className="h-12 w-full bg-transparent text-sm text-foam outline-none placeholder:text-mute"
       />
     </div>

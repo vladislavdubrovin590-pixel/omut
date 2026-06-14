@@ -1,25 +1,56 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
-export function formatPhoneInput(value: string): string {
+export function extractPhoneDigits(value: string): string {
   const digits = value.replace(/\D/g, "").replace(/^8/, "7").slice(0, 11);
-  const normalized = digits.startsWith("7") ? digits : `7${digits}`;
-  const d = normalized.slice(1);
-  const parts = [
-    d.slice(0, 3),
-    d.slice(3, 6),
-    d.slice(6, 8),
-    d.slice(8, 10),
-  ];
+  if (!digits) return "";
+  if (digits.startsWith("7")) return digits;
+  return `7${digits}`.slice(0, 11);
+}
+
+export function formatPhoneFromDigits(digits: string): string {
+  if (!digits) return "";
+  if (digits === "7") return "+7";
+
+  const local = digits.startsWith("7") ? digits.slice(1) : digits;
+  const p1 = local.slice(0, 3);
+  const p2 = local.slice(3, 6);
+  const p3 = local.slice(6, 8);
+  const p4 = local.slice(8, 10);
 
   let result = "+7";
-  if (parts[0]) result += ` (${parts[0]}`;
-  if (parts[0]?.length === 3) result += ")";
-  if (parts[1]) result += ` ${parts[1]}`;
-  if (parts[2]) result += `-${parts[2]}`;
-  if (parts[3]) result += `-${parts[3]}`;
+  if (p1) {
+    result += ` (${p1}`;
+    if (p1.length === 3) result += ")";
+  }
+  if (p2) result += ` ${p2}`;
+  if (p3) result += `-${p3}`;
+  if (p4) result += `-${p4}`;
   return result;
+}
+
+/** Apply mask while allowing free correction via Backspace/Delete. */
+export function applyPhoneInputChange(newValue: string, prevValue: string): string {
+  const prevDigits = extractPhoneDigits(prevValue);
+  let newDigits = extractPhoneDigits(newValue);
+
+  // Deleting ")" / spaces / dashes should remove the preceding digit too.
+  if (
+    newValue.length < prevValue.length &&
+    newDigits.length === prevDigits.length &&
+    prevDigits.length > 0
+  ) {
+    newDigits = prevDigits.slice(0, -1);
+  }
+
+  return formatPhoneFromDigits(newDigits);
+}
+
+/** @deprecated Use applyPhoneInputChange with previous value for editable masks. */
+export function formatPhoneInput(value: string): string {
+  return formatPhoneFromDigits(extractPhoneDigits(value));
 }
 
 export function PhoneInput({
@@ -39,6 +70,12 @@ export function PhoneInput({
   required?: boolean;
   autoComplete?: string;
 }) {
+  const prevRef = useRef(value);
+
+  useEffect(() => {
+    prevRef.current = value;
+  }, [value]);
+
   return (
     <input
       name={name}
@@ -48,7 +85,11 @@ export function PhoneInput({
       required={required}
       placeholder={placeholder}
       value={value}
-      onChange={(e) => onChange(formatPhoneInput(e.target.value))}
+      onChange={(e) => {
+        const next = applyPhoneInputChange(e.target.value, prevRef.current);
+        prevRef.current = next;
+        onChange(next);
+      }}
       className={cn(
         "h-12 w-full rounded-xl border border-line bg-surface px-4 text-sm text-foam outline-none placeholder:text-mute focus:border-aqua/50",
         className,
