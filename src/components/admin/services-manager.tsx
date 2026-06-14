@@ -79,7 +79,7 @@ function ServiceEditor({
         setTimeout(() => setSaved(false), 2000);
         onDone?.();
       } else {
-        setError(res.error ?? "Не удалось сохранить услугу");
+        setError("Не удалось сохранить услугу");
       }
     } catch {
       setError("Ошибка сохранения услуги");
