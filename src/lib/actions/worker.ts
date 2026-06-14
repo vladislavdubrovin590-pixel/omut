@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { normalizePhone } from "@/lib/phone";
 import { requireRole } from "@/lib/session";
 import { sendPushToUser } from "@/lib/actions/push";
 import type { BodyClass } from "@prisma/client";
@@ -29,7 +30,8 @@ export async function createOrFindClient(input: {
   phone: string;
 }) {
   await requireRole(["WORKER", "ADMIN"]);
-  const phone = input.phone.trim();
+  const phone = input.phone.trim() ? normalizePhone(input.phone) : null;
+  if (input.phone.trim() && !phone) return { ok: false, error: "Некорректный телефон" };
   let user = phone
     ? await prisma.user.findFirst({ where: { phone, role: "CLIENT" } })
     : null;
@@ -42,10 +44,10 @@ export async function createOrFindClient(input: {
 }
 
 export async function confirmArrival(bookingId: string) {
-  await requireRole(["WORKER", "ADMIN"]);
+  const worker = await requireRole(["WORKER", "ADMIN"]);
   await prisma.booking.update({
     where: { id: bookingId },
-    data: { status: "IN_PROGRESS" },
+    data: { status: "IN_PROGRESS", workerId: worker.id },
   });
   revalidatePath("/worker");
   return { ok: true };
@@ -70,6 +72,9 @@ export async function saveVisit(input: {
 
   if (!input.clientUserId) return { ok: false, error: "Не выбран клиент" };
   if (!input.items?.length) return { ok: false, error: "Добавьте хотя бы одну услугу" };
+  if (input.items.some((i) => !i.serviceId)) {
+    return { ok: false, error: "Все позиции должны быть выбраны из единого прайса" };
+  }
 
   let carId: string | undefined;
   if (input.car?.make && input.car?.model) {
@@ -109,7 +114,7 @@ export async function saveVisit(input: {
   if (input.bookingId) {
     await prisma.booking.update({
       where: { id: input.bookingId },
-      data: { status: "COMPLETED" },
+      data: { status: "COMPLETED", workerId: worker.id },
     });
   }
 

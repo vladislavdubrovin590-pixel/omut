@@ -77,3 +77,20 @@ export async function getGallery() {
     return [];
   }
 }
+
+export async function getActivePromotions() {
+  const now = new Date();
+  try {
+    return await prisma.promotion.findMany({
+      where: {
+        active: true,
+        OR: [{ startsAt: null }, { startsAt: { lte: now } }],
+        AND: [{ OR: [{ endsAt: null }, { endsAt: { gte: now } }] }],
+      },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    });
+  } catch {
+    return [];
+  }
+}

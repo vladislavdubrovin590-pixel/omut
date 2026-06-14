@@ -14,6 +14,8 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { CarCatalogFields } from "@/components/cars/car-catalog-fields";
 import { Card, EmptyState, StatusBadge } from "@/components/dashboard/ui";
 import {
   confirmArrival,
@@ -32,7 +34,7 @@ type BookingDTO = {
   clientId: string;
   clientName: string;
   carLabel: string | null;
-  services: { title: string; price: number }[];
+  services: { serviceId: string; title: string; price: number }[];
   estimatedTotal: number;
   note: string | null;
 };
@@ -87,6 +89,7 @@ export function WorkerConsole({
       b.services.map((s, idx) => ({
         key: `b${idx}`,
         title: s.title,
+        serviceId: s.serviceId,
         price: s.price,
         qty: 1,
       })),
@@ -126,13 +129,6 @@ export function WorkerConsole({
     ]);
   }
 
-  function addCustom() {
-    setItems((prev) => [
-      ...prev,
-      { key: `c${Date.now()}`, title: "", price: 0, qty: 1 },
-    ]);
-  }
-
   function updateItem(key: string, patch: Partial<Item>) {
     setItems((prev) => prev.map((i) => (i.key === key ? { ...i, ...patch } : i)));
   }
@@ -144,7 +140,7 @@ export function WorkerConsole({
   async function handleSave() {
     setError("");
     if (!client) return setError("Выберите клиента");
-    const valid = items.filter((i) => i.title.trim());
+    const valid = items.filter((i) => i.serviceId);
     if (valid.length === 0) return setError("Добавьте хотя бы одну услугу");
     setBusy(true);
     try {
@@ -216,7 +212,6 @@ export function WorkerConsole({
           items={items}
           services={services}
           addService={addService}
-          addCustom={addCustom}
           updateItem={updateItem}
           removeItem={removeItem}
           make={make}
@@ -317,7 +312,6 @@ type VisitFormProps = {
   items: Item[];
   services: ServiceDTO[];
   addService: (id: string) => void;
-  addCustom: () => void;
   updateItem: (key: string, patch: Partial<Item>) => void;
   removeItem: (key: string) => void;
   make: string;
@@ -384,9 +378,9 @@ function VisitForm(p: VisitFormProps) {
               </option>
             ))}
           </select>
-          <Button size="sm" variant="subtle" onClick={p.addCustom} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4" /> Своя позиция
-          </Button>
+          <p className="text-xs text-mute">
+            Позиции берутся из единого прайса. Стоимость можно уточнить по факту.
+          </p>
         </div>
 
         {p.items.length === 0 ? (
@@ -398,12 +392,9 @@ function VisitForm(p: VisitFormProps) {
                 key={it.key}
                 className="grid gap-2 rounded-xl border border-line bg-surface/60 p-2 sm:grid-cols-[1fr_4rem_7rem_auto] sm:items-center"
               >
-                <input
-                  value={it.title}
-                  onChange={(e) => p.updateItem(it.key, { title: e.target.value })}
-                  placeholder="Название услуги"
-                  className="h-10 min-w-0 rounded-lg border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50"
-                />
+                <div className="min-w-0 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-foam">
+                  {it.title}
+                </div>
                 <input
                   type="number"
                   value={it.qty}
@@ -437,23 +428,14 @@ function VisitForm(p: VisitFormProps) {
           <CarFront className="h-5 w-5 text-aqua" /> Автомобиль
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          <input
-            placeholder="Марка"
-            value={p.make}
-            onChange={(e) => p.setMake(e.target.value)}
-            className="h-11 rounded-xl border border-line bg-surface px-4 text-sm text-foam outline-none focus:border-aqua/50"
-          />
-          <input
-            placeholder="Модель"
-            value={p.model}
-            onChange={(e) => p.setModel(e.target.value)}
-            className="h-11 rounded-xl border border-line bg-surface px-4 text-sm text-foam outline-none focus:border-aqua/50"
-          />
-          <input
-            placeholder="Госномер"
-            value={p.plate}
-            onChange={(e) => p.setPlate(e.target.value)}
-            className="h-11 rounded-xl border border-line bg-surface px-4 text-sm text-foam outline-none focus:border-aqua/50"
+          <CarCatalogFields
+            make={p.make}
+            model={p.model}
+            plate={p.plate}
+            setMake={p.setMake}
+            setModel={p.setModel}
+            setPlate={p.setPlate}
+            className="contents"
           />
           <select
             value={p.bodyClass}
@@ -578,11 +560,11 @@ function ClientPicker({ onPick }: { onPick: (c: ClientResult) => void }) {
             placeholder="Имя"
             className="h-10 rounded-lg border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50"
           />
-          <input
+          <PhoneInput
             value={newPhone}
-            onChange={(e) => setNewPhone(e.target.value)}
+            onChange={setNewPhone}
             placeholder="Телефон"
-            className="h-10 rounded-lg border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50"
+            className="h-10 rounded-lg px-3"
           />
         </div>
         <Button size="sm" variant="subtle" className="mt-2" onClick={create} disabled={creating}>

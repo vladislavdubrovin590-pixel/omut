@@ -18,6 +18,17 @@ export async function updateBookingStatus(
   return { ok: true };
 }
 
+export async function assignBookingWorker(bookingId: string, workerId: string) {
+  await requireRole(["ADMIN"]);
+  await prisma.booking.update({
+    where: { id: bookingId },
+    data: { workerId: workerId || null },
+  });
+  revalidatePath("/admin/bookings");
+  revalidatePath("/worker");
+  return { ok: true };
+}
+
 export async function saveContent(entries: Record<string, string>) {
   await requireRole(["ADMIN"]);
   await Promise.all(
@@ -152,6 +163,7 @@ export async function updateClientCard(input: {
   phone?: string;
   email?: string;
   note?: string;
+  bonusDiscountPercent?: number;
 }) {
   await requireRole(["ADMIN"]);
   const phone = input.phone ? normalizePhone(input.phone) : null;
@@ -164,11 +176,44 @@ export async function updateClientCard(input: {
       phone,
       email: input.email?.trim() || null,
       note: input.note?.trim() || null,
+      bonusDiscountPercent: Math.max(
+        0,
+        Math.min(100, Number(input.bonusDiscountPercent) || 0),
+      ),
     },
   });
 
   revalidatePath(`/admin/clients/${input.userId}`);
   revalidatePath("/admin/clients");
+  return { ok: true };
+}
+
+export async function savePromotion(input: {
+  id?: string;
+  title: string;
+  description?: string;
+  discountPercent: number;
+  active: boolean;
+  startsAt?: string;
+  endsAt?: string;
+}) {
+  await requireRole(["ADMIN"]);
+  if (!input.title.trim()) return { ok: false, error: "Укажите название акции" };
+  const data = {
+    title: input.title.trim(),
+    description: input.description?.trim() || null,
+    discountPercent: Math.max(0, Math.min(100, Number(input.discountPercent) || 0)),
+    active: input.active,
+    startsAt: input.startsAt ? new Date(input.startsAt) : null,
+    endsAt: input.endsAt ? new Date(input.endsAt) : null,
+  };
+  if (input.id) {
+    await prisma.promotion.update({ where: { id: input.id }, data });
+  } else {
+    await prisma.promotion.create({ data });
+  }
+  revalidatePath("/");
+  revalidatePath("/admin/promotions");
   return { ok: true };
 }
 

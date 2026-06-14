@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { updateClientCard } from "@/lib/actions/admin";
 
 type Client = {
@@ -9,10 +10,12 @@ type Client = {
   phone: string | null;
   email: string | null;
   note: string | null;
+  bonusDiscountPercent: number;
 };
 
 export function ClientCardForm({ client }: { client: Client }) {
   const [message, setMessage] = useState<string | null>(null);
+  const [phone, setPhone] = useState(client.phone ?? "");
   const [pending, startTransition] = useTransition();
 
   return (
@@ -27,6 +30,7 @@ export function ClientCardForm({ client }: { client: Client }) {
             phone: String(formData.get("phone") ?? ""),
             email: String(formData.get("email") ?? ""),
             note: String(formData.get("note") ?? ""),
+            bonusDiscountPercent: Number(formData.get("bonusDiscountPercent") ?? 0),
           });
           setMessage(result.ok ? "Карточка сохранена" : result.error ?? "Ошибка");
         });
@@ -42,9 +46,21 @@ export function ClientCardForm({ client }: { client: Client }) {
       </label>
       <label className="space-y-1 text-sm">
         <span className="text-mute">Телефон</span>
-        <input
+        <PhoneInput
           name="phone"
-          defaultValue={client.phone ?? ""}
+          value={phone}
+          onChange={setPhone}
+          className="bg-abyss"
+        />
+      </label>
+      <label className="space-y-1 text-sm">
+        <span className="text-mute">Бонусная скидка, %</span>
+        <input
+          name="bonusDiscountPercent"
+          type="number"
+          min={0}
+          max={100}
+          defaultValue={client.bonusDiscountPercent}
           className="w-full rounded-xl border border-line bg-abyss px-3 py-2 text-foam outline-none focus:border-aqua"
         />
       </label>

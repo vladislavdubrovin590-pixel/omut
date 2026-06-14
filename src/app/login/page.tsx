@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2, Lock, Phone } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { BrandLogo } from "@/components/site/brand-logo";
 import { Button } from "@/components/ui/button";
+import { formatPhoneInput } from "@/components/ui/phone-input";
 
 export default function LoginPage() {
   return (
@@ -160,7 +161,9 @@ function Field({
         placeholder={placeholder}
         value={value}
         autoComplete={autoComplete}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) =>
+          onChange(type === "tel" ? formatPhoneInput(e.target.value) : e.target.value)
+        }
         className="h-12 w-full bg-transparent text-sm text-foam outline-none placeholder:text-mute"
       />
     </div>

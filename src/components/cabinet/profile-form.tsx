@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { updateProfile } from "@/lib/actions/profile";
 
 export function ProfileForm({
@@ -46,10 +47,9 @@ export function ProfileForm({
       </div>
       <div>
         <label className="mb-1.5 block text-sm text-mist">Телефон</label>
-        <input
+        <PhoneInput
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="h-12 w-full rounded-xl border border-line bg-surface px-4 text-sm text-foam outline-none focus:border-aqua/50"
+          onChange={setPhone}
           placeholder="+7 ..."
         />
       </div>

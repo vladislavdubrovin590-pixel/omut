@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import type { Role } from "@prisma/client";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { saveEmployee } from "@/lib/actions/admin";
 
 type Employee = {
@@ -15,6 +16,7 @@ type Employee = {
 
 export function EmployeeForm({ employee }: { employee?: Employee }) {
   const [message, setMessage] = useState<string | null>(null);
+  const [phone, setPhone] = useState(employee?.phone ?? "");
   const [pending, startTransition] = useTransition();
 
   return (
@@ -47,10 +49,11 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       </label>
       <label className="space-y-1 text-sm">
         <span className="text-mute">Телефон</span>
-        <input
+        <PhoneInput
           name="phone"
-          defaultValue={employee?.phone ?? ""}
-          className="w-full rounded-xl border border-line bg-abyss px-3 py-2 text-foam outline-none focus:border-aqua"
+          value={phone}
+          onChange={setPhone}
+          className="bg-abyss"
           placeholder="+7..."
           required
         />

@@ -4,6 +4,7 @@ import { requirePageUser } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 import { Card, EmptyState, PageHeading } from "@/components/dashboard/ui";
 import { BookingStatusSelect } from "@/components/admin/booking-status-select";
+import { BookingWorkerSelect } from "@/components/admin/booking-worker-select";
 import { formatDate, formatRub } from "@/lib/utils";
 
 export const metadata = { title: "Записи" };
@@ -12,6 +13,7 @@ const bookingInclude = {
   services: { include: { service: true } },
   car: true,
   user: true,
+  worker: true,
 } satisfies Prisma.BookingInclude;
 
 type BookingRow = Prisma.BookingGetPayload<{ include: typeof bookingInclude }>;
@@ -26,14 +28,30 @@ function groupByDay(items: BookingRow[]): [string, BookingRow[]][] {
   return [...map.entries()];
 }
 
-export default async function AdminBookings() {
+export default async function AdminBookings({
+  searchParams,
+}: {
+  searchParams: Promise<{ day?: string }>;
+}) {
   await requirePageUser(["ADMIN"]);
+  const params = await searchParams;
+  const selectedDay = params.day;
+  const dayStart = selectedDay ? new Date(`${selectedDay}T00:00:00`) : null;
+  const dayEnd = selectedDay ? new Date(`${selectedDay}T23:59:59.999`) : null;
 
-  const bookings = await prisma.booking.findMany({
-    include: bookingInclude,
-    orderBy: { scheduledAt: "desc" },
-    take: 200,
-  });
+  const [bookings, workers] = await Promise.all([
+    prisma.booking.findMany({
+      where: dayStart && dayEnd ? { scheduledAt: { gte: dayStart, lte: dayEnd } } : undefined,
+      include: bookingInclude,
+      orderBy: { scheduledAt: "desc" },
+      take: 200,
+    }),
+    prisma.user.findMany({
+      where: { role: { in: ["WORKER", "ADMIN"] } },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, phone: true },
+    }),
+  ]);
 
   const dayAgo = new Date();
   dayAgo.setDate(dayAgo.getDate() - 1);
@@ -44,14 +62,36 @@ export default async function AdminBookings() {
 
   return (
     <>
-      <PageHeading title="Записи" subtitle="Управление заявками и расписанием" />
+      <PageHeading title="Записи" subtitle="Планирование по дням, статусам и сотрудникам" />
+
+      <form className="mb-6 flex flex-col gap-3 rounded-2xl border border-line bg-surface/40 p-4 sm:flex-row sm:items-center">
+        <label className="text-sm text-mist">
+          День планирования
+          <input
+            name="day"
+            type="date"
+            defaultValue={selectedDay ?? ""}
+            className="mt-1 h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-foam outline-none focus:border-aqua/50 sm:w-auto"
+          />
+        </label>
+        <button className="rounded-xl bg-aqua px-4 py-2.5 text-sm font-semibold text-abyss">
+          Показать день
+        </button>
+        {selectedDay && (
+          <a href="/admin/bookings" className="text-sm text-mist hover:text-foam">
+            Все записи
+          </a>
+        )}
+      </form>
 
       {bookings.length === 0 ? (
         <EmptyState title="Записей пока нет" icon={<CalendarDays className="h-8 w-8" />} />
       ) : (
         <div className="space-y-8">
-          <Section title="Предстоящие" groups={groupByDay(upcoming)} />
-          {past.length > 0 && <Section title="Прошедшие" groups={groupByDay(past)} muted />}
+          <Section title="Предстоящие" groups={groupByDay(upcoming)} workers={workers} />
+          {past.length > 0 && (
+            <Section title="Прошедшие" groups={groupByDay(past)} workers={workers} muted />
+          )}
         </div>
       )}
     </>
@@ -62,10 +102,12 @@ function Section({
   title,
   groups,
   muted,
+  workers,
 }: {
   title: string;
   groups: [string, BookingRow[]][];
   muted?: boolean;
+  workers: { id: string; name: string | null; phone: string | null }[];
 }) {
   if (groups.length === 0) {
     return (
@@ -114,6 +156,11 @@ function Section({
                   </div>
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                     <span className="font-semibold text-aqua">{formatRub(b.estimatedTotal)}</span>
+                    <BookingWorkerSelect
+                      bookingId={b.id}
+                      workerId={b.workerId}
+                      workers={workers}
+                    />
                     <BookingStatusSelect bookingId={b.id} status={b.status} />
                   </div>
                 </Card>

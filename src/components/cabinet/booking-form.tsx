@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Loader2, CalendarCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CarCatalogFields } from "@/components/cars/car-catalog-fields";
 import { createBooking } from "@/lib/actions/booking";
 import { formatRub, BODY_CLASS_LABELS } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,13 @@ type ServiceOpt = {
   durationMin: number;
 };
 
+type CarOpt = {
+  id: string;
+  make: string;
+  model: string;
+  plate: string | null;
+};
+
 const CAT_LABELS: Record<string, string> = {
   wash: "Мойка",
   polish: "Полировка",
@@ -28,9 +36,11 @@ const CAT_LABELS: Record<string, string> = {
 
 export function BookingForm({
   services,
+  cars,
   initialServiceSlug,
 }: {
   services: ServiceOpt[];
+  cars: CarOpt[];
   initialServiceSlug?: string;
 }) {
   const router = useRouter();
@@ -49,6 +59,7 @@ export function BookingForm({
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
   const [plate, setPlate] = useState("");
+  const [carId, setCarId] = useState("");
   const [bodyClass, setBodyClass] = useState("B");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
@@ -93,6 +104,7 @@ export function BookingForm({
         serviceIds: [...selected],
         scheduledAt,
         note: note || undefined,
+        carId: carId || undefined,
         car: make && model ? { make, model, plate, bodyClass: bodyClass as never } : undefined,
       });
       if (!res.ok) {
@@ -198,25 +210,41 @@ export function BookingForm({
 
       <section>
         <h2 className="mb-1 text-lg font-semibold">3. Автомобиль</h2>
-        <p className="mb-3 text-xs text-mute">Необязательно, но ускорит подготовку</p>
+        <p className="mb-3 text-xs text-mute">
+          Выберите сохранённый автомобиль или добавьте новый
+        </p>
+        {cars.length > 0 && (
+          <select
+            value={carId}
+            onChange={(e) => {
+              setCarId(e.target.value);
+              if (e.target.value) {
+                setMake("");
+                setModel("");
+                setPlate("");
+              }
+            }}
+            className="mb-3 h-12 w-full rounded-xl border border-line bg-surface px-4 text-sm text-foam outline-none focus:border-aqua/50"
+          >
+            <option value="" className="bg-surface">Добавить новый автомобиль</option>
+            {cars.map((car) => (
+              <option key={car.id} value={car.id} className="bg-surface">
+                {car.make} {car.model}
+                {car.plate ? ` · ${car.plate}` : ""}
+              </option>
+            ))}
+          </select>
+        )}
+        {!carId && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <input
-            placeholder="Марка (напр. BMW)"
-            value={make}
-            onChange={(e) => setMake(e.target.value)}
-            className="h-12 rounded-xl border border-line bg-surface px-4 text-sm text-foam outline-none focus:border-aqua/50"
-          />
-          <input
-            placeholder="Модель (напр. X5)"
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            className="h-12 rounded-xl border border-line bg-surface px-4 text-sm text-foam outline-none focus:border-aqua/50"
-          />
-          <input
-            placeholder="Госномер"
-            value={plate}
-            onChange={(e) => setPlate(e.target.value)}
-            className="h-12 rounded-xl border border-line bg-surface px-4 text-sm text-foam outline-none focus:border-aqua/50"
+          <CarCatalogFields
+            make={make}
+            model={model}
+            plate={plate}
+            setMake={setMake}
+            setModel={setModel}
+            setPlate={setPlate}
+            className="contents"
           />
           <select
             value={bodyClass}
@@ -230,6 +258,7 @@ export function BookingForm({
             ))}
           </select>
         </div>
+        )}
         <textarea
           placeholder="Комментарий (пожелания, состояние авто)"
           value={note}

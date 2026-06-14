@@ -15,6 +15,7 @@ export type CreateBookingInput = {
     plate?: string;
     bodyClass?: BodyClass;
   };
+  carId?: string;
 };
 
 export async function createBooking(input: CreateBookingInput) {
@@ -34,8 +35,15 @@ export async function createBooking(input: CreateBookingInput) {
     return { ok: false, error: "Услуги не найдены" };
   }
 
-  let carId: string | undefined;
-  if (input.car?.make && input.car?.model) {
+  let carId: string | undefined = undefined;
+  if (input.carId) {
+    const existing = await prisma.car.findFirst({
+      where: { id: input.carId, userId: user.id },
+      select: { id: true },
+    });
+    carId = existing?.id;
+  }
+  if (!carId && input.car?.make && input.car?.model) {
     const car = await prisma.car.create({
       data: {
         userId: user.id,

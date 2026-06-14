@@ -17,15 +17,22 @@ import { SiteFooter } from "@/components/site/footer";
 import { Reveal } from "@/components/ui/reveal";
 import { ButtonLink } from "@/components/ui/button";
 import { BUSINESS, SERVICE_CATEGORIES } from "@/lib/constants";
-import { getServices, getApprovedReviews, getContent, getGallery } from "@/lib/data";
+import {
+  getServices,
+  getApprovedReviews,
+  getContent,
+  getGallery,
+  getActivePromotions,
+} from "@/lib/data";
 import { formatRub } from "@/lib/utils";
 
 export default async function HomePage() {
-  const [services, reviews, content, gallery] = await Promise.all([
+  const [services, reviews, content, gallery, promotions] = await Promise.all([
     getServices(),
     getApprovedReviews(),
     getContent(),
     getGallery(),
+    getActivePromotions(),
   ]);
 
   const heroTitle = content["hero.title"] ?? BUSINESS.tagline;
@@ -133,6 +140,37 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {promotions.length > 0 && (
+          <section id="promotions" className="border-y border-line bg-abyss-2 py-12 sm:py-16 lg:py-20">
+            <div className="mx-auto max-w-7xl px-4 sm:px-5">
+              <SectionHeading
+                eyebrow="Акции"
+                title="Выгодные предложения"
+                subtitle="Актуальные скидки и бонусы для клиентов студии"
+              />
+              <div className="mt-8 grid gap-4 sm:mt-12 md:grid-cols-3">
+                {promotions.map((promo) => (
+                  <div
+                    key={promo.id}
+                    className="rounded-2xl border border-aqua/20 bg-gradient-to-br from-aqua/10 to-surface/70 p-5"
+                  >
+                    <div className="text-3xl font-semibold text-aqua">
+                      -{promo.discountPercent}%
+                    </div>
+                    <h3 className="mt-3 text-lg font-semibold text-foam">{promo.title}</h3>
+                    {promo.description && (
+                      <p className="mt-2 text-sm text-mist">{promo.description}</p>
+                    )}
+                    <ButtonLink href="/book" className="mt-5 w-full sm:w-auto" variant="outline">
+                      Записаться по акции
+                    </ButtonLink>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* WHY */}
         <section id="why" className="border-y border-line bg-abyss-2 py-12 sm:py-16 lg:py-20">

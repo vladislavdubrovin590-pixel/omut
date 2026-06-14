@@ -54,10 +54,12 @@ model User {
   passwordHash String?
   avatarUrl   String?
   note        String? // internal admin note
+  bonusDiscountPercent Int @default(0)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   cars        Car[]
   bookings    Booking[]
+  assignedBookings Booking[] @relation("WorkerBookings")
   visits      Visit[]     @relation("ClientVisits")
   workedVisits Visit[]    @relation("WorkerVisits")
   pushTokens  PushToken[]
@@ -139,6 +141,8 @@ model Booking {
   user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   carId       String?
   car         Car?             @relation(fields: [carId], references: [id])
+  workerId    String?
+  worker      User?            @relation("WorkerBookings", fields: [workerId], references: [id])
   scheduledAt DateTime
   status      BookingStatus    @default(PENDING)
   note        String?
@@ -150,6 +154,7 @@ model Booking {
   visit       Visit?
 
   @@index([userId])
+  @@index([workerId])
   @@index([status])
   @@index([scheduledAt])
 }
@@ -256,4 +261,20 @@ model Setting {
   key       String   @id
   value     String   @default("")
   updatedAt DateTime @updatedAt
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  discountPercent Int @default(0)
+  active      Boolean  @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active])
+  @@index([startsAt])
+  @@index([endsAt])
 }

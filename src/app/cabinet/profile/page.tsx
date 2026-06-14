@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, EmptyState, PageHeading } from "@/components/dashboard/ui";
 import { ProfileForm } from "@/components/cabinet/profile-form";
 import { PushToggle } from "@/components/cabinet/push-toggle";
-import { BODY_CLASS_LABELS } from "@/lib/utils";
+import { CarsManager } from "@/components/cabinet/cars-manager";
 
 export const metadata = { title: "Профиль" };
 
@@ -42,29 +42,13 @@ export default async function ProfilePage() {
             {cars.length === 0 ? (
               <EmptyState
                 title="Автомобили не добавлены"
-                hint="Авто добавляется автоматически при записи"
+                hint="Добавьте авто вручную или при записи"
                 icon={<CarIcon className="h-7 w-7" />}
               />
-            ) : (
-              <div className="space-y-2">
-                {cars.map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex items-center justify-between rounded-xl border border-line bg-surface/60 px-4 py-3"
-                  >
-                    <div>
-                      <div className="text-sm text-foam">
-                        {c.make} {c.model}
-                      </div>
-                      <div className="text-xs text-mute">
-                        {BODY_CLASS_LABELS[c.bodyClass]}
-                        {c.plate ? ` · ${c.plate}` : ""}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            ) : null}
+            <div className={cars.length === 0 ? "mt-4" : ""}>
+              <CarsManager cars={cars} />
+            </div>
           </Card>
         </div>
       </div>
