@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 
 const sizeMap = {
   sm: {
-    frame: "h-14 w-36 p-2",
+    frame: "h-11 w-36",
   },
   md: {
-    frame: "h-16 w-44 p-2.5",
+    frame: "h-14 w-44",
   },
   lg: {
-    frame: "h-32 w-80 p-4",
+    frame: "h-28 w-80",
   },
 };
 
@@ -26,7 +26,7 @@ export function BrandLogo({
     <Link href="/" className={cn("group block", className)} aria-label="Омут">
       <span
         className={cn(
-          "relative grid shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_16px_36px_-24px_rgba(255,255,255,0.65)]",
+          "relative grid shrink-0 place-items-center overflow-visible drop-shadow-[0_0_18px_rgba(34,211,238,0.22)]",
           s.frame,
         )}
       >
