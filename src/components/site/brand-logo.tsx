@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 
 const sizeMap = {
   sm: {
-    image: "h-10 w-32",
+    frame: "h-14 w-36 p-2",
   },
   md: {
-    image: "h-12 w-40",
+    frame: "h-16 w-44 p-2.5",
   },
   lg: {
-    image: "h-24 w-64",
+    frame: "h-32 w-80 p-4",
   },
 };
 
@@ -26,15 +26,15 @@ export function BrandLogo({
     <Link href="/" className={cn("group block", className)} aria-label="Омут">
       <span
         className={cn(
-          "relative grid shrink-0 place-items-center overflow-hidden drop-shadow-[0_0_18px_rgba(34,211,238,0.18)]",
-          s.image,
+          "relative grid shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_16px_36px_-24px_rgba(255,255,255,0.65)]",
+          s.frame,
         )}
       >
         <Image
           src="/brand-logo.png"
           alt="Омут"
-          width={128}
-          height={128}
+          width={720}
+          height={460}
           priority={size !== "sm"}
           className="h-full w-full object-contain"
         />
