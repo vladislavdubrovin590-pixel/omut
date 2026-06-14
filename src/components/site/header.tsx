@@ -1,9 +1,8 @@
 "use client";
-
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X, User2, Phone } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
+import { BrandLogo } from "@/components/site/brand-logo";
 import { ButtonLink } from "@/components/ui/button";
 import { BUSINESS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -45,15 +44,7 @@ export function SiteHeader() {
       )}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
-        <Link href="/" className="group flex items-center gap-2.5">
-          <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-aqua to-aqua-deep">
-            <span className="h-3.5 w-3.5 rounded-full bg-abyss" />
-            <span className="absolute h-2 w-2 rounded-full bg-aqua" />
-          </span>
-          <span className="text-lg font-semibold tracking-[0.3em] text-foam">
-            ОМУТ
-          </span>
-        </Link>
+        <BrandLogo size="md" />
 
         <nav className="hidden items-center gap-7 lg:flex">
           {NAV.map((item) => (

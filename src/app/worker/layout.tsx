@@ -1,10 +1,9 @@
 import { requirePageUser } from "@/lib/guards";
 import { Sidebar, type NavItem } from "@/components/dashboard/sidebar";
-import { ClipboardCheck, LayoutDashboard } from "lucide-react";
 
 const NAV: NavItem[] = [
-  { href: "/worker", label: "Приёмка", icon: ClipboardCheck },
-  { href: "/cabinet", label: "Мой кабинет", icon: LayoutDashboard },
+  { href: "/worker", label: "Приёмка", icon: "ClipboardCheck" },
+  { href: "/cabinet", label: "Мой кабинет", icon: "LayoutDashboard" },
 ];
 
 export default async function WorkerLayout({

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Lock, Phone } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
+import { BrandLogo } from "@/components/site/brand-logo";
 import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
@@ -82,12 +83,7 @@ function LoginInner() {
 
         <div className="glass rounded-3xl p-8">
           <div className="text-center">
-            <div className="mx-auto flex w-fit items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-aqua to-aqua-deep">
-                <span className="h-3.5 w-3.5 rounded-full bg-abyss" />
-              </span>
-              <span className="text-lg font-semibold tracking-[0.3em]">ОМУТ</span>
-            </div>
+            <BrandLogo size="lg" className="mx-auto w-fit" />
             <h1 className="mt-5 text-2xl font-semibold">
               Вход в кабинет
             </h1>

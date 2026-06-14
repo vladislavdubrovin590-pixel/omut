@@ -1,18 +1,14 @@
 import Link from "next/link";
 import { MapPin, Clock, Phone } from "lucide-react";
 import { BUSINESS } from "@/lib/constants";
+import { BrandLogo } from "@/components/site/brand-logo";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-abyss-2">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:grid-cols-3">
         <div>
-          <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-aqua to-aqua-deep">
-              <span className="h-3.5 w-3.5 rounded-full bg-abyss" />
-            </span>
-            <span className="text-lg font-semibold tracking-[0.3em]">ОМУТ</span>
-          </div>
+          <BrandLogo size="md" />
           <p className="mt-4 max-w-xs text-sm text-mute">
             {BUSINESS.fullName}. {BUSINESS.tagline}.
           </p>

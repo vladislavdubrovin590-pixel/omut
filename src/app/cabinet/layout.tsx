@@ -1,19 +1,12 @@
 import { requirePageUser } from "@/lib/guards";
 import { Sidebar, type NavItem } from "@/components/dashboard/sidebar";
-import {
-  LayoutDashboard,
-  CalendarPlus,
-  CalendarClock,
-  History,
-  User2,
-} from "lucide-react";
 
 const NAV: NavItem[] = [
-  { href: "/cabinet", label: "Обзор", icon: LayoutDashboard },
-  { href: "/cabinet/book", label: "Записаться", icon: CalendarPlus },
-  { href: "/cabinet/bookings", label: "Мои записи", icon: CalendarClock },
-  { href: "/cabinet/history", label: "История", icon: History },
-  { href: "/cabinet/profile", label: "Профиль", icon: User2 },
+  { href: "/cabinet", label: "Обзор", icon: "LayoutDashboard" },
+  { href: "/cabinet/book", label: "Записаться", icon: "CalendarPlus" },
+  { href: "/cabinet/bookings", label: "Мои записи", icon: "CalendarClock" },
+  { href: "/cabinet/history", label: "История", icon: "History" },
+  { href: "/cabinet/profile", label: "Профиль", icon: "User2" },
 ];
 
 export default async function CabinetLayout({

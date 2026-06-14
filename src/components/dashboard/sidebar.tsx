@@ -3,14 +3,49 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { LogOut, type LucideIcon } from "lucide-react";
+import {
+  BarChart3,
+  Bell,
+  CalendarClock,
+  CalendarDays,
+  CalendarPlus,
+  ClipboardCheck,
+  FileText,
+  History,
+  LayoutDashboard,
+  LogOut,
+  Star,
+  User2,
+  Users,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
+import { BrandLogo } from "@/components/site/brand-logo";
 import { cn } from "@/lib/utils";
+
+const ICONS = {
+  BarChart3,
+  Bell,
+  CalendarClock,
+  CalendarDays,
+  CalendarPlus,
+  ClipboardCheck,
+  FileText,
+  History,
+  LayoutDashboard,
+  Star,
+  User2,
+  Users,
+  Wrench,
+} satisfies Record<string, LucideIcon>;
+
+export type NavIconName = keyof typeof ICONS;
 
 export type NavItem = {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: NavIconName;
 };
 
 export function Sidebar({
@@ -34,16 +69,12 @@ export function Sidebar({
   return (
     <aside className="flex w-full flex-row gap-1 overflow-x-auto border-b border-line bg-abyss-2 p-3 lg:h-screen lg:w-64 lg:flex-col lg:gap-1 lg:overflow-y-auto lg:border-b-0 lg:border-r">
       <div className="hidden px-3 py-4 lg:block">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-aqua to-aqua-deep">
-            <span className="h-3 w-3 rounded-full bg-abyss" />
-          </span>
-          <span className="text-base font-semibold tracking-[0.25em]">ОМУТ</span>
-        </Link>
+        <BrandLogo size="sm" />
         <p className="mt-3 text-xs uppercase tracking-wide text-mute">{title}</p>
       </div>
 
       {items.map((item) => {
+        const Icon = ICONS[item.icon];
         const active =
           pathname === item.href ||
           (item.href !== "/cabinet" &&
@@ -61,7 +92,7 @@ export function Sidebar({
                 : "text-mist hover:bg-white/5 hover:text-foam",
             )}
           >
-            <item.icon className="h-4.5 w-4.5" />
+            <Icon className="h-4.5 w-4.5" />
             <span className="whitespace-nowrap">{item.label}</span>
           </Link>
         );
