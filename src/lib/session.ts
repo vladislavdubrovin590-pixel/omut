@@ -10,7 +10,8 @@ import {
 import type { Role, User } from "@prisma/client";
 
 export const SESSION_COOKIE = "omut_session";
-const FIVE_DAYS_MS = 60 * 60 * 24 * 5 * 1000;
+const LONG_SESSION_MS = 60 * 60 * 24 * 365 * 1000;
+const FIREBASE_SESSION_MS = 60 * 60 * 24 * 14 * 1000;
 
 function setSessionCookie(value: string) {
   return cookies().then((store) => {
@@ -20,7 +21,7 @@ function setSessionCookie(value: string) {
       // Enable with FORCE_SECURE_COOKIES=true after HTTPS domain migration.
       secure: process.env.FORCE_SECURE_COOKIES === "true",
       sameSite: "lax",
-      maxAge: FIVE_DAYS_MS / 1000,
+      maxAge: LONG_SESSION_MS / 1000,
       path: "/",
     });
   });
@@ -63,7 +64,7 @@ export async function createSession(idToken: string): Promise<User> {
   });
 
   const sessionCookie = await adminAuth.createSessionCookie(idToken, {
-    expiresIn: FIVE_DAYS_MS,
+    expiresIn: FIREBASE_SESSION_MS,
   });
 
   await setSessionCookie(sessionCookie);

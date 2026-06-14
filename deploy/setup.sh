@@ -5,12 +5,17 @@ set -euo pipefail
 
 APP_DIR=/opt/omut
 SECRETS_DIR=/opt/omut-secrets
+UPLOAD_DIR=/var/www/omut-uploads/gallery
 REPO_URL=https://github.com/vladislavdubrovin590-pixel/omut.git
 PUBLIC_HOST="${PUBLIC_HOST:-201.51.3.75}"
 
 echo "==> Ensuring secrets dir"
 mkdir -p "$SECRETS_DIR"
 chmod 700 "$SECRETS_DIR"
+
+echo "==> Ensuring upload storage"
+mkdir -p "$UPLOAD_DIR"
+chmod 755 /var/www/omut-uploads "$UPLOAD_DIR"
 
 echo "==> Database password"
 if [ ! -f "$SECRETS_DIR/dbpass" ]; then

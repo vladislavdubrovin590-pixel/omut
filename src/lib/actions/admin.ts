@@ -1,5 +1,7 @@
 "use server";
 
+import { unlink } from "fs/promises";
+import path from "path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
@@ -239,6 +241,7 @@ export async function addGalleryImage(input: {
   url: string;
   caption?: string;
   category?: string;
+  mediaType?: string;
 }) {
   await requireRole(["ADMIN"]);
   if (!input.url.trim()) return { ok: false, error: "Укажите ссылку на изображение" };
@@ -247,6 +250,7 @@ export async function addGalleryImage(input: {
       url: input.url.trim(),
       caption: input.caption?.trim() || null,
       category: input.category || "work",
+      mediaType: input.mediaType || "image",
     },
   });
   revalidatePath("/");
@@ -256,7 +260,12 @@ export async function addGalleryImage(input: {
 
 export async function deleteGalleryImage(id: string) {
   await requireRole(["ADMIN"]);
-  await prisma.galleryImage.delete({ where: { id } });
+  const item = await prisma.galleryImage.delete({ where: { id } });
+  if (item.url.startsWith("/uploads/gallery/")) {
+    const filename = path.basename(item.url);
+    const uploadDir = process.env.GALLERY_UPLOAD_DIR ?? "/var/www/omut-uploads/gallery";
+    await unlink(path.join(uploadDir, filename)).catch(() => undefined);
+  }
   revalidatePath("/");
   revalidatePath("/admin/content");
   return { ok: true };

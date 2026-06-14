@@ -3,7 +3,12 @@
 set -euo pipefail
 
 APP_DIR=/opt/omut
+UPLOAD_DIR=/var/www/omut-uploads/gallery
 cd "$APP_DIR"
+
+echo "==> Ensuring upload storage"
+mkdir -p "$UPLOAD_DIR"
+chmod 755 /var/www/omut-uploads "$UPLOAD_DIR"
 
 echo "==> Pulling latest"
 git fetch origin

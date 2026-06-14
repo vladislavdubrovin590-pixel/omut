@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 export const PHONE_SESSION_PREFIX = "p.";
 
-const MAX_AGE_SEC = 60 * 60 * 24 * 5; // 5 days
+const MAX_AGE_SEC = 60 * 60 * 24 * 365; // 365 days
 
 function getSecret(): string {
   const secret = process.env.SESSION_SECRET;

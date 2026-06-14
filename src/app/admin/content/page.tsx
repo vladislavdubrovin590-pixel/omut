@@ -30,6 +30,7 @@ export default async function AdminContent() {
             url: i.url,
             caption: i.caption,
             category: i.category,
+            mediaType: i.mediaType,
           }))}
         />
       </div>

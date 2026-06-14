@@ -247,11 +247,17 @@ export default async function HomePage() {
             <SectionHeading eyebrow="Работы" title="Результат, который видно" />
             <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
               {(gallery.length > 0
-                ? gallery.map((g) => ({ id: g.id, url: g.url, caption: g.caption }))
+                ? gallery.map((g) => ({
+                    id: g.id,
+                    url: g.url,
+                    caption: g.caption,
+                    mediaType: g.mediaType,
+                  }))
                 : Array.from({ length: 8 }).map((_, i) => ({
                     id: `ph-${i}`,
                     url: "",
                     caption: null,
+                    mediaType: "image",
                   }))
               ).map((g) => (
                 <div
@@ -259,12 +265,22 @@ export default async function HomePage() {
                   className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-surface to-abyss"
                 >
                   {g.url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={g.url}
-                      alt={g.caption ?? "Работа Омут"}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    g.mediaType === "video" ? (
+                      <video
+                        src={g.url}
+                        className="h-full w-full object-cover"
+                        controls
+                        muted
+                        playsInline
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={g.url}
+                        alt={g.caption ?? "Работа Омут"}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    )
                   ) : (
                     <div className="flex h-full items-center justify-center text-mute">
                       <Droplets className="h-8 w-8 opacity-40" />

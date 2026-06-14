@@ -225,6 +225,7 @@ model GalleryImage {
   url       String
   caption   String?
   category  String   @default("work") // work | before_after | interior
+  mediaType String   @default("image") // image | video
   sortOrder Int      @default(0)
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
