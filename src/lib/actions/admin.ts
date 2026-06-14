@@ -9,6 +9,12 @@ import { normalizePhone } from "@/lib/phone";
 import { requireRole } from "@/lib/session";
 import type { BookingStatus, EmployeeStatus, Role } from "@prisma/client";
 
+const ACTIVE_BOOKING_STATUSES: BookingStatus[] = [
+  "PENDING",
+  "CONFIRMED",
+  "IN_PROGRESS",
+];
+
 export async function updateBookingStatus(
   bookingId: string,
   status: BookingStatus,
@@ -73,7 +79,6 @@ export type ServiceInput = {
 
 export async function saveService(input: ServiceInput) {
   await requireRole(["ADMIN"]);
-  const activeBookingStatuses = ["PENDING", "CONFIRMED", "IN_PROGRESS"] as const;
   const data = {
     slug: input.slug.trim(),
     title: input.title.trim(),
@@ -89,7 +94,7 @@ export async function saveService(input: ServiceInput) {
     await prisma.service.update({ where: { id: input.id }, data });
     const affectedBookings = await prisma.booking.findMany({
       where: {
-        status: { in: activeBookingStatuses },
+        status: { in: ACTIVE_BOOKING_STATUSES },
         services: { some: { serviceId: input.id } },
       },
       select: { id: true },
