@@ -139,11 +139,6 @@ async function main() {
       bodyClass: "B",
     },
     update: {
-      userId: client.id,
-      make: "Toyota",
-      model: "Camry",
-      plate: "А123АА163",
-      bodyClass: "B",
     },
   });
 
@@ -170,12 +165,6 @@ async function main() {
         },
       },
       update: {
-        userId: client.id,
-        carId: car.id,
-        scheduledAt,
-        status: "CONFIRMED",
-        note: "Тестовая запись для проверки кабинета",
-        estimatedTotal: detailingWash.basePrice + ceramic.basePrice,
       },
     });
 
@@ -206,14 +195,6 @@ async function main() {
         },
       },
       update: {
-        userId: client.id,
-        workerId: worker.id,
-        carId: car.id,
-        status: "COMPLETED",
-        arrivedAt: completedAt,
-        completedAt,
-        totalAmount: detailingWash.basePrice,
-        note: "Тестовый завершённый визит",
       },
     });
 
