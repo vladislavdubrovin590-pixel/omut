@@ -83,8 +83,8 @@ function LoginInner() {
 
         <div className="glass rounded-3xl p-5 sm:p-8">
           <div className="text-center">
-            <BrandLogo size="md" className="mx-auto w-fit" />
-            <h1 className="mt-8 text-2xl font-semibold">
+            <BrandLogo size="lg" className="mx-auto" />
+            <h1 className="mt-7 text-2xl font-semibold">
               Вход в кабинет
             </h1>
             <p className="mt-2 text-sm text-mute">
