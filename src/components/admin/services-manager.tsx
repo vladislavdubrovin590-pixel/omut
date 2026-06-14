@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Plus, Save, Trash2, Check, X } from "lucide-react";
+import { AlertModal } from "@/components/ui/alert-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/dashboard/ui";
 import { saveService, deleteService, type ServiceInput } from "@/lib/actions/admin";
@@ -60,6 +61,7 @@ function ServiceEditor({
   const [form, setForm] = useState<ServiceInput>(initial);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const [open, setOpen] = useState(!!isNew);
 
   function set<K extends keyof ServiceInput>(k: K, v: ServiceInput[K]) {
@@ -68,6 +70,7 @@ function ServiceEditor({
 
   async function save() {
     setBusy(true);
+    setError("");
     try {
       const res = await saveService(form);
       if (res.ok) {
@@ -75,7 +78,11 @@ function ServiceEditor({
         router.refresh();
         setTimeout(() => setSaved(false), 2000);
         onDone?.();
+      } else {
+        setError(res.error ?? "Не удалось сохранить услугу");
       }
+    } catch {
+      setError("Ошибка сохранения услуги");
     } finally {
       setBusy(false);
     }
@@ -118,6 +125,12 @@ function ServiceEditor({
 
   return (
     <Card>
+      <AlertModal
+        title="Услуга не сохранена"
+        message={error}
+        onClose={() => setError("")}
+      />
+
       <div className="grid gap-3 sm:grid-cols-2">
         <Input label="Название" value={form.title} onChange={(v) => set("title", v)} />
         <Input label="Slug (лат.)" value={form.slug} onChange={(v) => set("slug", v)} />

@@ -113,13 +113,7 @@ async function main() {
         ...u,
         passwordHash,
       },
-      update: {
-        name: u.name,
-        email: u.email,
-        role: u.role,
-        passwordHash,
-        note: u.note,
-      },
+      update: {},
     });
   }
 

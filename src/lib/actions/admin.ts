@@ -9,12 +9,6 @@ import { normalizePhone } from "@/lib/phone";
 import { requireRole } from "@/lib/session";
 import type { BookingStatus, EmployeeStatus, Role } from "@prisma/client";
 
-const ACTIVE_BOOKING_STATUSES: BookingStatus[] = [
-  "PENDING",
-  "CONFIRMED",
-  "IN_PROGRESS",
-];
-
 export async function updateBookingStatus(
   bookingId: string,
   status: BookingStatus,
@@ -92,37 +86,7 @@ export async function saveService(input: ServiceInput) {
   };
   if (input.id) {
     await prisma.service.update({ where: { id: input.id }, data });
-    const affectedBookings = await prisma.booking.findMany({
-      where: {
-        status: { in: ACTIVE_BOOKING_STATUSES },
-        services: { some: { serviceId: input.id } },
-      },
-      select: { id: true },
-    });
-    const bookingIds = affectedBookings.map((booking) => booking.id);
-    if (bookingIds.length > 0) {
-      await prisma.bookingService.updateMany({
-        where: { bookingId: { in: bookingIds }, serviceId: input.id },
-        data: { price: data.basePrice },
-      });
-      const bookings = await prisma.booking.findMany({
-        where: { id: { in: bookingIds } },
-        include: { services: { include: { service: true } } },
-      });
-      await Promise.all(
-        bookings.map((booking) =>
-          prisma.booking.update({
-            where: { id: booking.id },
-            data: {
-              estimatedTotal: booking.services.reduce(
-                (sum, item) => sum + item.service.basePrice,
-                0,
-              ),
-            },
-          }),
-        ),
-      );
-    }
+    await syncServicePriceUsage(input.id, data.basePrice);
   } else {
     await prisma.service.create({ data });
   }
@@ -133,6 +97,77 @@ export async function saveService(input: ServiceInput) {
   revalidatePath("/cabinet");
   revalidatePath("/cabinet/bookings");
   return { ok: true };
+}
+
+async function syncServicePriceUsage(serviceId: string, basePrice: number) {
+  const [affectedBookings, affectedVisits] = await Promise.all([
+    prisma.booking.findMany({
+      where: {
+        services: { some: { serviceId } },
+      },
+      select: { id: true },
+    }),
+    prisma.visit.findMany({
+      where: {
+        items: { some: { serviceId } },
+      },
+      select: { id: true },
+    }),
+  ]);
+
+  const bookingIds = affectedBookings.map((booking) => booking.id);
+  const visitIds = affectedVisits.map((visit) => visit.id);
+
+  await Promise.all([
+    prisma.bookingService.updateMany({
+      where: { serviceId },
+      data: { price: basePrice },
+    }),
+    prisma.visitItem.updateMany({
+      where: { serviceId },
+      data: { price: basePrice },
+    }),
+  ]);
+
+  if (bookingIds.length > 0) {
+    const bookings = await prisma.booking.findMany({
+      where: { id: { in: bookingIds } },
+      include: { services: { include: { service: true } } },
+    });
+    await Promise.all(
+      bookings.map((booking) =>
+        prisma.booking.update({
+          where: { id: booking.id },
+          data: {
+            estimatedTotal: booking.services.reduce(
+              (sum, item) => sum + item.service.basePrice,
+              0,
+            ),
+          },
+        }),
+      ),
+    );
+  }
+
+  if (visitIds.length > 0) {
+    const visits = await prisma.visit.findMany({
+      where: { id: { in: visitIds } },
+      include: { items: true },
+    });
+    await Promise.all(
+      visits.map((visit) =>
+        prisma.visit.update({
+          where: { id: visit.id },
+          data: {
+            totalAmount: visit.items.reduce(
+              (sum, item) => sum + item.price * item.qty,
+              0,
+            ),
+          },
+        }),
+      ),
+    );
+  }
 }
 
 export async function deleteService(id: string) {
