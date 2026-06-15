@@ -45,11 +45,61 @@ export async function createOrFindClient(input: {
 
 export async function confirmArrival(bookingId: string) {
   const worker = await requireRole(["WORKER", "ADMIN"]);
+  if (worker.employeeStatus === "DISMISSED") {
+    return { ok: false, error: "Нет доступа" };
+  }
   await prisma.booking.update({
     where: { id: bookingId },
     data: { status: "IN_PROGRESS", workerId: worker.id },
   });
   revalidatePath("/worker");
+  revalidatePath("/worker/schedule");
+  return { ok: true };
+}
+
+export async function claimBooking(bookingId: string) {
+  const worker = await requireRole(["WORKER", "ADMIN"]);
+  if (worker.employeeStatus === "DISMISSED") {
+    return { ok: false, error: "Нет доступа" };
+  }
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    select: { workerId: true },
+  });
+  if (!booking) return { ok: false, error: "Запись не найдена" };
+  if (booking.workerId && booking.workerId !== worker.id) {
+    return { ok: false, error: "Запись уже взял другой сотрудник" };
+  }
+  await prisma.booking.update({
+    where: { id: bookingId },
+    data: { workerId: worker.id },
+  });
+  revalidatePath("/worker");
+  revalidatePath("/worker/schedule");
+  revalidatePath("/admin/bookings");
+  return { ok: true };
+}
+
+export async function releaseBooking(bookingId: string) {
+  const worker = await requireRole(["WORKER", "ADMIN"]);
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    select: { workerId: true, status: true },
+  });
+  if (!booking) return { ok: false, error: "Запись не найдена" };
+  if (booking.workerId !== worker.id && worker.role !== "ADMIN") {
+    return { ok: false, error: "Это не ваша запись" };
+  }
+  if (booking.status === "IN_PROGRESS") {
+    return { ok: false, error: "Запись уже в работе" };
+  }
+  await prisma.booking.update({
+    where: { id: bookingId },
+    data: { workerId: null },
+  });
+  revalidatePath("/worker");
+  revalidatePath("/worker/schedule");
+  revalidatePath("/admin/bookings");
   return { ok: true };
 }
 

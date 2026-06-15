@@ -59,24 +59,55 @@ type ClientResult = {
 
 type Item = VisitItemInput & { key: string };
 
+function carPartsFromLabel(label: string | null): { make: string; model: string } {
+  if (!label) return { make: "", model: "" };
+  const [mk, ...rest] = label.split(" ");
+  return { make: mk ?? "", model: rest.join(" ") };
+}
+
 export function WorkerConsole({
   bookings,
   services,
   initialTab,
+  initialBookingId = null,
 }: {
   bookings: BookingDTO[];
   services: ServiceDTO[];
   initialTab: "today" | "new";
+  initialBookingId?: string | null;
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"today" | "new">(initialTab);
 
+  const initialBooking = initialBookingId
+    ? bookings.find((b) => b.id === initialBookingId) ?? null
+    : null;
+  const initialCar = carPartsFromLabel(initialBooking?.carLabel ?? null);
+
   // visit form state
-  const [client, setClient] = useState<{ id: string; name: string; bonusDiscountPercent: number } | null>(null);
-  const [bookingId, setBookingId] = useState<string | null>(null);
-  const [items, setItems] = useState<Item[]>([]);
-  const [make, setMake] = useState("");
-  const [model, setModel] = useState("");
+  const [client, setClient] = useState<{ id: string; name: string; bonusDiscountPercent: number } | null>(
+    initialBooking
+      ? {
+          id: initialBooking.clientId,
+          name: initialBooking.clientName,
+          bonusDiscountPercent: initialBooking.clientDiscountPercent,
+        }
+      : null,
+  );
+  const [bookingId, setBookingId] = useState<string | null>(initialBooking?.id ?? null);
+  const [items, setItems] = useState<Item[]>(
+    initialBooking
+      ? initialBooking.services.map((s, idx) => ({
+          key: `b${idx}`,
+          title: s.title,
+          serviceId: s.serviceId,
+          price: s.price,
+          qty: 1,
+        }))
+      : [],
+  );
+  const [make, setMake] = useState(initialCar.make);
+  const [model, setModel] = useState(initialCar.model);
   const [plate, setPlate] = useState("");
   const [bodyClass, setBodyClass] = useState("B");
   const [note, setNote] = useState("");

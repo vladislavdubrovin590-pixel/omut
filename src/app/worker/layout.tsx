@@ -3,7 +3,8 @@ import { Sidebar, type NavItem } from "@/components/dashboard/sidebar";
 
 const NAV: NavItem[] = [
   { href: "/worker", label: "Приёмка", icon: "ClipboardCheck" },
-  { href: "/cabinet", label: "Мой кабинет", icon: "LayoutDashboard" },
+  { href: "/worker/schedule", label: "Записи", icon: "CalendarClock" },
+  { href: "/worker/cabinet", label: "Мой кабинет", icon: "LayoutDashboard" },
 ];
 
 export default async function WorkerLayout({

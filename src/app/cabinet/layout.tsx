@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { requirePageUser } from "@/lib/guards";
 import { Sidebar, type NavItem } from "@/components/dashboard/sidebar";
 
@@ -15,6 +16,7 @@ export default async function CabinetLayout({
   children: React.ReactNode;
 }) {
   const user = await requirePageUser();
+  if (user.role === "WORKER") redirect("/worker/cabinet");
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
       <Sidebar title="Личный кабинет" items={NAV} userName={user.name ?? user.email} />

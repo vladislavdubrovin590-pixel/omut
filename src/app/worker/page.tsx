@@ -9,18 +9,23 @@ export const metadata = { title: "Приёмка" };
 export default async function WorkerPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; booking?: string }>;
 }) {
   const user = await requirePageUser(["WORKER", "ADMIN"]);
   const params = await searchParams;
-  const initialTab = params.tab === "new" ? "new" : "today";
+  const requestedBookingId = params.booking;
+  const initialTab = params.tab === "new" || requestedBookingId ? "new" : "today";
 
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
   const end = new Date();
   end.setHours(23, 59, 59, 999);
 
-  const [bookings, services] = await Promise.all([
+  const bookingInclude = {
+    services: { include: { service: true } },
+    car: true,
+    user: true,
+  };
+
+  const [bookings, services, requestedBooking] = await Promise.all([
     prisma.booking.findMany({
       where: {
         status: { in: ["PENDING", "CONFIRMED", "IN_PROGRESS"] },
@@ -29,11 +34,7 @@ export default async function WorkerPage({
           ? { OR: [{ workerId: user.id }, { workerId: null }] }
           : {}),
       },
-      include: {
-        services: { include: { service: true } },
-        car: true,
-        user: true,
-      },
+      include: bookingInclude,
       orderBy: { scheduledAt: "asc" },
       take: 50,
     }),
@@ -42,9 +43,26 @@ export default async function WorkerPage({
       orderBy: { sortOrder: "asc" },
       select: { id: true, title: true, basePrice: true },
     }),
+    requestedBookingId
+      ? prisma.booking.findFirst({
+          where: {
+            id: requestedBookingId,
+            status: { in: ["PENDING", "CONFIRMED", "IN_PROGRESS"] },
+            ...(user.role === "WORKER"
+              ? { OR: [{ workerId: user.id }, { workerId: null }] }
+              : {}),
+          },
+          include: bookingInclude,
+        })
+      : Promise.resolve(null),
   ]);
 
-  const dto = bookings.map((b) => ({
+  const allBookings =
+    requestedBooking && !bookings.some((b) => b.id === requestedBooking.id)
+      ? [requestedBooking, ...bookings]
+      : bookings;
+
+  const dto = allBookings.map((b) => ({
     id: b.id,
     scheduledAt: b.scheduledAt.toISOString(),
     status: b.status,
@@ -72,7 +90,12 @@ export default async function WorkerPage({
         title="Приёмка автомобилей"
         subtitle="Подтверждайте приезд и оформляйте выполненные услуги"
       />
-      <WorkerConsole bookings={dto} services={services} initialTab={initialTab} />
+      <WorkerConsole
+        bookings={dto}
+        services={services}
+        initialTab={initialTab}
+        initialBookingId={requestedBooking?.id ?? null}
+      />
     </>
   );
 }
